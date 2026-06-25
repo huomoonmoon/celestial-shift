@@ -1,0 +1,3399 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>星移 Celestial Shift V4 · Online</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  script, noscript { display: none !important; visibility: hidden !important; }
+  html, body {
+    margin: 0; padding: 0;
+    background: radial-gradient(ellipse at top, #0d1230 0%, #050617 60%, #02030a 100%);
+    color: #e8ecff;
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 60% 70%, rgba(180,200,255,0.6), transparent),
+      radial-gradient(1px 1px at 80% 20%, rgba(255,230,200,0.5), transparent),
+      radial-gradient(2px 2px at 40% 80%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 10% 60%, rgba(200,180,255,0.6), transparent),
+      radial-gradient(2px 2px at 90% 40%, rgba(255,255,255,0.5), transparent);
+    background-size: 1200px 800px; background-repeat: repeat;
+  }
+  #app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 16px; }
+  h1, h2, h3 { margin: 0; font-weight: 700; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .menu { text-align: center; padding: 60px 20px; }
+  .menu .title {
+    font-size: 64px; letter-spacing: 8px; font-weight: 800;
+    background: linear-gradient(120deg, #b8d1ff, #f0d9ff, #ffd6a8, #b8d1ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 40px rgba(120, 150, 255, 0.3); margin-bottom: 4px;
+  }
+  .menu .subtitle { font-size: 18px; letter-spacing: 6px; color: #8aa0d8; margin-bottom: 12px; }
+  .menu .tagline { color: #94a4d3; max-width: 600px; margin: 0 auto 40px; line-height: 1.8; font-style: italic; }
+  .menu .panel {
+    display: inline-block; background: rgba(20, 28, 60, 0.5);
+    border: 1px solid rgba(120, 150, 255, 0.2); border-radius: 16px;
+    padding: 32px 40px; backdrop-filter: blur(8px); min-width: 360px;
+  }
+  .menu .panel h3 { margin-bottom: 16px; color: #c5d2ff; }
+  .menu label { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; gap: 16px; }
+  .menu select, .menu input[type="text"] {
+    background: rgba(10, 18, 40, 0.7); color: #e8ecff;
+    border: 1px solid rgba(150, 170, 230, 0.3);
+    padding: 8px 12px; border-radius: 8px; min-width: 140px; font-family: inherit;
+  }
+  .menu .start-btn {
+    margin-top: 24px; padding: 14px 48px; font-size: 18px; letter-spacing: 4px;
+    background: linear-gradient(135deg, #5d7dff, #9b6bff);
+    color: white; border: none; border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(110, 130, 255, 0.4); transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .menu .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 32px rgba(110, 130, 255, 0.6); }
+  .menu .rules-btn {
+    margin-top: 12px; padding: 10px 28px; background: transparent;
+    color: #c5d2ff; border: 1px solid rgba(150, 170, 230, 0.3); border-radius: 8px;
+  }
+
+  .game-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
+  @media (max-width: 1100px) { .game-layout { grid-template-columns: 1fr; } }
+
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 16px; margin-bottom: 12px;
+    background: rgba(20, 28, 60, 0.5); border: 1px solid rgba(120, 150, 255, 0.2); border-radius: 12px;
+  }
+  .top-bar .brand {
+    font-size: 18px; letter-spacing: 4px; font-weight: 700;
+    background: linear-gradient(120deg, #b8d1ff, #ffd6a8); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .top-bar .actions button {
+    background: rgba(80, 100, 180, 0.3); color: #c5d2ff; border: 1px solid rgba(150, 170, 230, 0.3);
+    padding: 6px 14px; border-radius: 8px; margin-left: 8px;
+  }
+
+  .players-panel { background: rgba(20, 28, 60, 0.5); border: 1px solid rgba(120, 150, 255, 0.2); border-radius: 14px; padding: 12px; }
+  .players-panel h3 { font-size: 14px; letter-spacing: 3px; color: #a8b5e0; margin-bottom: 12px; }
+  .player-card {
+    background: rgba(30, 40, 75, 0.5); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+    border-left: 4px solid var(--pc, #5d7dff); transition: all 0.2s;
+  }
+  .player-card.active { background: rgba(60, 80, 150, 0.55); box-shadow: 0 0 0 2px var(--pc, #5d7dff), 0 0 20px rgba(120,150,255,0.3); }
+  .player-card .name { font-weight: 600; }
+  .player-card .badge { font-size: 11px; color: #93a3d3; margin-left: 6px; }
+  .player-card .score-bar { margin-top: 6px; height: 6px; border-radius: 3px; background: rgba(10, 18, 40, 0.6); overflow: hidden; }
+  .player-card .score-bar .fill { height: 100%; background: linear-gradient(90deg, var(--pc, #5d7dff), #ffd6a8); transition: width 0.4s ease; }
+  .player-card .stats { display: flex; justify-content: space-between; font-size: 12px; color: #b8c4ee; margin-top: 6px; }
+
+  .grids-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 8px; }
+  .grid-section { display: flex; flex-direction: column; align-items: center; }
+  .grid-section-label { font-size: 12px; letter-spacing: 3px; color: #a8b5e0; margin-bottom: 6px; text-align: center; }
+
+  .grid-frame {
+    position: relative; padding: 12px;
+    background: rgba(20, 28, 60, 0.5); border: 1px solid rgba(120, 150, 255, 0.2); border-radius: 16px;
+  }
+  .grid-frame.central-frame { border-color: rgba(255, 214, 168, 0.3); }
+  .grid {
+    display: grid; grid-template-columns: repeat(5, 56px); grid-template-rows: repeat(5, 56px); gap: 4px;
+  }
+  .cell { width: 56px; height: 56px; }
+  .cell.arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: #6f80b6; font-size: 20px; cursor: not-allowed;
+    background: transparent; border: 1px dashed rgba(120, 140, 200, 0.2); border-radius: 8px;
+    transition: all 0.15s; user-select: none;
+  }
+  .cell.arrow.can-push { color: #ffd6a8; border-color: rgba(255, 214, 168, 0.5); cursor: pointer; background: rgba(255, 214, 168, 0.05); }
+  .cell.arrow.can-push:hover { color: #fff; border-color: #ffd6a8; background: rgba(255, 214, 168, 0.15); transform: scale(1.05); }
+
+  .star-card {
+    width: 56px; height: 56px; border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(30, 40, 75, 0.8); border: 2px solid var(--cc);
+    box-shadow: inset 0 0 12px rgba(255,255,255,0.05), 0 0 8px var(--cc-glow, transparent);
+    transition: all 0.3s; font-size: 11px; position: relative;
+  }
+  .star-card.matched { animation: matched 0.6s ease forwards; }
+  @keyframes matched {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15); box-shadow: 0 0 24px gold, 0 0 48px var(--cc); }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  .star-card .icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+  .star-card .label { color: var(--cc); font-size: 9px; letter-spacing: 1px; }
+  .star-card .stars { position: absolute; top: 2px; right: 4px; font-size: 8px; color: #ffd97a; letter-spacing: -1px; }
+  .star-card.selectable { cursor: pointer; box-shadow: 0 0 0 2px #ffd6a8, inset 0 0 12px rgba(255,255,255,0.1); animation: pulse 1.4s infinite ease-in-out; }
+  .star-card.selectable:hover { transform: scale(1.08); }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 2px #ffd6a8, inset 0 0 12px rgba(255,255,255,0.1); } 50% { box-shadow: 0 0 0 3px #ffe27a, inset 0 0 16px rgba(255,255,255,0.2); } }
+  .placeholder-empty { width: 56px; height: 56px; border-radius: 8px; background: rgba(10, 18, 40, 0.3); border: 1px dashed rgba(120, 140, 200, 0.2); }
+
+  .hand-area {
+    background: rgba(20, 28, 60, 0.5); border: 1px solid rgba(120, 150, 255, 0.2);
+    border-radius: 16px; padding: 16px; width: 100%; max-width: 800px;
+  }
+  .hand-area h3 { font-size: 14px; letter-spacing: 3px; color: #a8b5e0; margin-bottom: 12px; }
+  .hand { display: flex; gap: 10px; flex-wrap: wrap; min-height: 90px; }
+
+  .reserve-discard-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; width: 100%; max-width: 800px; }
+  .reserve-discard-row > .hand-area { flex: 1 1 320px; max-width: none; margin: 0; }
+  .reserve-discard-row > .discard-area { flex: 0 0 auto; min-width: 150px; margin: 0; }
+
+  .discard-area {
+    background: rgba(40, 22, 36, 0.55); border: 1px dashed rgba(220, 120, 150, 0.35);
+    border-radius: 16px; padding: 14px 16px;
+  }
+  .discard-area h3 { font-size: 14px; letter-spacing: 3px; color: #f0a8c0; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; }
+  .discard-area .discard-stack { display: flex; gap: 8px; min-height: 96px; align-items: center; flex-wrap: wrap; }
+  .discard-empty { color: #8aa0d8; font-size: 12px; opacity: 0.7; }
+
+  .hand-card {
+    width: 72px; height: 96px; border-radius: 10px;
+    background: linear-gradient(160deg, rgba(40, 50, 90, 0.9), rgba(20, 30, 60, 0.9));
+    border: 2px solid var(--cc); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4), inset 0 0 16px rgba(255,255,255,0.04);
+    transition: all 0.2s; position: relative; flex-shrink: 0;
+  }
+  .hand-card:hover { transform: translateY(-6px); box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 16px var(--cc); }
+  .hand-card.selected { transform: translateY(-10px); box-shadow: 0 0 0 3px #ffd6a8, 0 8px 28px rgba(255,214,168,0.4); }
+  .hand-card .icon { width: 40px; height: 40px; margin-bottom: 4px; }
+  .hand-card .label { font-size: 10px; color: var(--cc); letter-spacing: 1px; font-weight: 600; }
+  .hand-card .shape-label { font-size: 9px; color: #c5d2ff; margin-top: 2px; }
+  .hand-card .stars { position: absolute; top: 4px; right: 6px; font-size: 9px; color: #ffd97a; }
+
+  .quests-area { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .quest-card {
+    background: rgba(30, 25, 60, 0.7); border: 1px dashed rgba(180, 150, 255, 0.5);
+    border-left: 3px solid var(--cc); border-radius: 8px; padding: 6px 10px;
+    font-size: 11px; max-width: 200px; position: relative;
+  }
+  .quest-card .qtitle { font-weight: 600; color: var(--cc); }
+  .quest-card .qdesc { color: #c5d2ff; margin-top: 2px; }
+  .quest-card.completable { background: rgba(50, 80, 30, 0.6); border-color: #ffe27a; cursor: pointer; }
+  .quest-card.completable:hover { background: rgba(70, 110, 40, 0.7); }
+  .quest-card .qbadge { position: absolute; top: -8px; right: -8px; background: #ffd97a; color: #2a1a00; font-weight: bold; border-radius: 50%; width: 22px; height: 22px; display:flex; align-items:center; justify-content:center; font-size: 10px; }
+
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(2, 4, 14, 0.25);
+    display: flex; align-items: center; justify-content: flex-end; z-index: 100;
+    padding: 12px 20px; pointer-events: auto;
+  }
+  .modal {
+    background: linear-gradient(160deg, rgba(30, 40, 80, 0.97), rgba(15, 20, 50, 0.97));
+    border: 1px solid rgba(255, 214, 168, 0.4); border-radius: 16px;
+    padding: 22px 24px; max-width: 520px; width: 100%;
+    max-height: 92vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(255,214,168,0.15);
+  }
+  .modal h2 { margin-bottom: 16px; color: #ffd6a8; letter-spacing: 3px; }
+  .modal h3 { margin-top: 12px; margin-bottom: 8px; color: #b8d1ff; }
+  .modal p { line-height: 1.7; color: #d0d8ff; margin: 6px 0; }
+  .modal table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  .modal th, .modal td { padding: 6px 10px; text-align: left; border-bottom: 1px solid rgba(150, 170, 230, 0.15); font-size: 13px; }
+  .modal th { color: #b8d1ff; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+  .modal-actions button { background: linear-gradient(135deg, #5d7dff, #9b6bff); color: white; border: none; padding: 10px 22px; border-radius: 8px; }
+  .modal-actions button.secondary { background: rgba(80, 100, 180, 0.3); color: #c5d2ff; border: 1px solid rgba(150, 170, 230, 0.3); }
+  .modal-actions button.danger { background: linear-gradient(135deg, #a04060, #d05080); }
+
+  .choice-card {
+    background: rgba(30, 40, 80, 0.7); border: 1px solid rgba(150, 170, 230, 0.3);
+    border-radius: 10px; padding: 14px; margin: 8px 0; cursor: pointer; transition: all 0.2s;
+  }
+  .choice-card:hover { background: rgba(60, 80, 140, 0.7); border-color: #ffd6a8; }
+  .choice-card .ctitle { font-weight: 600; color: #ffd6a8; margin-bottom: 4px; }
+  .choice-card .cdesc { font-size: 13px; color: #d0d8ff; line-height: 1.5; }
+  .choice-card.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+  .log-area {
+    background: rgba(20, 28, 60, 0.5); border: 1px solid rgba(120, 150, 255, 0.2);
+    border-radius: 12px; padding: 10px 14px; margin-top: 8px;
+    font-size: 12px; color: #b8c4ee; max-height: 120px; overflow-y: auto; line-height: 1.6;
+  }
+  .log-line { margin: 2px 0; }
+  .log-score { color: #ffd97a; font-weight: 600; }
+  .log-system { color: #8aa0d8; font-style: italic; }
+
+  .instructions {
+    background: rgba(40, 50, 90, 0.6); border: 1px solid rgba(255, 214, 168, 0.3);
+    border-radius: 10px; padding: 10px 16px; margin-bottom: 12px;
+    text-align: center; color: #ffd6a8; letter-spacing: 1px; font-size: 13px;
+  }
+
+  .pick-grid { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 12px 0; }
+  .pick-card { cursor: pointer; transition: all 0.2s; }
+  .pick-card:hover { transform: translateY(-4px); }
+  .pick-card.picked { box-shadow: 0 0 0 3px #ffd6a8; }
+
+  .score-pop {
+    position: fixed; pointer-events: none; font-weight: 700; color: #ffe27a;
+    text-shadow: 0 0 10px #ffd97a, 0 0 20px #ffd97a; font-size: 24px; z-index: 200;
+    animation: scorePop 1.2s ease-out forwards;
+  }
+  @keyframes scorePop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-50px); opacity: 0; } }
+
+  .mini-grid { display: grid; grid-template-columns: repeat(3, 18px); gap: 2px; margin-top: 4px; }
+  .mini-cell { width: 18px; height: 18px; border-radius: 3px; background: rgba(30,40,75,0.8); border: 1px solid rgba(150,170,230,0.2); }
+
+  .center { text-align: center; }
+  .muted { color: #8aa0d8; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .small { font-size: 12px; }
+
+  .grid-arrow {
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: rgba(150,170,230,0.3); border-radius: 6px;
+    cursor: default; user-select: none; transition: color 0.15s, background 0.15s;
+  }
+  .grid-arrow.active {
+    color: #ffd6a8; cursor: pointer; background: rgba(255,214,168,0.08);
+  }
+  .grid-arrow.active:hover { background: rgba(255,214,168,0.2); color: #fff; }
+  .grid-corner { width: 36px; height: 36px; }
+  .grid-cell.empty { width: 36px; height: 36px; background: rgba(30,40,75,0.4); border-radius: 6px; border: 1px dashed rgba(150,170,230,0.15); }
+  .grid-frame { display: inline-block; }
+  .central-frame .grid { border: 2px solid rgba(255,214,168,0.3); border-radius: 8px; }
+  .modal-box {
+    background: #1a1f3a; border: 1px solid rgba(150,170,230,0.3); border-radius: 12px;
+    padding: 24px; min-width: 320px; max-width: 600px; max-height: 80vh;
+    overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  .modal-title { font-size: 1.1em; font-weight: 700; color: #ffd6a8; margin-bottom: 12px; }
+  .modal-body { margin-bottom: 16px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .pick-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .choice-card { padding: 12px; border-radius: 8px; background: rgba(30,40,75,0.8); cursor: pointer; margin-bottom: 8px; }
+  .choice-card:hover { background: rgba(60,70,120,0.8); }
+  .ctitle { font-weight: 700; color: #ffd6a8; margin-bottom: 4px; }
+  .cdesc { font-size: 0.85em; color: #8aa0d8; line-height: 1.5; }
+  .reserve-card { opacity: 0.85; }
+  .selectable { cursor: pointer !important; outline: 2px solid #ffd6a8; }
+  .selectable:hover { outline-color: #fff; }
+  .completable { animation: pulse 1.2s infinite alternate; cursor: pointer; }
+  @keyframes pulse { from { box-shadow: 0 0 4px var(--cc, #ffd6a8); } to { box-shadow: 0 0 14px var(--cc, #ffd6a8); } }
+  .btn-primary { background: rgba(255,214,168,0.15); border-color: #ffd6a8; color: #ffd6a8; }
+  .btn-primary:hover { background: rgba(255,214,168,0.3); }
+  .btn-character { background: rgba(180,100,255,0.12); border-color: #b48aff; color: #b48aff; }
+  .btn-character:hover { background: rgba(180,100,255,0.25); }
+  .quests-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+  .quest-card { padding: 4px 10px; border-radius: 12px; font-size: 0.85em; border: 1px solid var(--cc, #8aa0d8); background: rgba(30,40,75,0.6); }
+  .reserve-discard-row { display: flex; gap: 16px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+
+// ========== 1. 資料定義 ==========
+const ENERGIES = [
+  { id: 'pyro',  name: '火焰能量', en: 'Pyro',        color: '#ff6b3d', glow: 'rgba(255,107,61,0.5)' },
+  { id: 'cryo',  name: '冰晶能量', en: 'Cryo',        color: '#5ec5ff', glow: 'rgba(94,197,255,0.5)' },
+  { id: 'dark',  name: '暗物質',   en: 'Dark Matter', color: '#b58aff', glow: 'rgba(181,138,255,0.5)' },
+  { id: 'solar', name: '恆星輻射', en: 'Solar',       color: '#ffd24a', glow: 'rgba(255,210,74,0.5)' },
+  { id: 'anti',  name: '反物質',   en: 'Anti-matter', color: '#e8f3ff', glow: 'rgba(232,243,255,0.4)' },
+  { id: 'quan',  name: '量子能量', en: 'Quantum',     color: '#4dd4ac', glow: 'rgba(77,212,172,0.5)' },
+];
+const ENERGY_BY = Object.fromEntries(ENERGIES.map(e => [e.id, e]));
+
+const SHAPES = [
+  { id: 'meteor', name: '隕石', en: 'Meteorite', stars: 1 },
+  { id: 'comet',  name: '彗星', en: 'Comet',     stars: 2 },
+  { id: 'black',  name: '黑洞', en: 'Black Hole',stars: 3 },
+];
+const SHAPE_BY = Object.fromEntries(SHAPES.map(s => [s.id, s]));
+
+// V4: 消除形狀模式（3×3 星陣），從大到小排列
+const ELIM_PATTERNS = [
+  { size: 9, score: 66, name: '九消（全滿）',    cells: [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 8, score: 39, name: '八消（一圈）',    cells: [[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 7, score: 24, name: '七消 U（開上）',  cells: [[0,0],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 7, score: 24, name: '七消 U（開下）',  cells: [[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,2]] },
+  { size: 7, score: 24, name: '七消 U（開左）',  cells: [[0,0],[0,1],[0,2],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 7, score: 24, name: '七消 U（開右）',  cells: [[0,0],[0,1],[0,2],[1,0],[2,0],[2,1],[2,2]] },
+  { size: 6, score: 14, name: '六消（上2行）',   cells: [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]] },
+  { size: 6, score: 14, name: '六消（下2行）',   cells: [[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 6, score: 14, name: '六消（左2列）',   cells: [[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] },
+  { size: 6, score: 14, name: '六消（右2列）',   cells: [[0,1],[0,2],[1,1],[1,2],[2,1],[2,2]] },
+  { size: 5, score:  8, name: '五消 T',          cells: [[0,0],[0,1],[0,2],[1,1],[2,1]] },
+  { size: 5, score:  8, name: '五消 T',          cells: [[0,1],[1,1],[2,0],[2,1],[2,2]] },
+  { size: 5, score:  8, name: '五消 T',          cells: [[0,0],[1,0],[1,1],[1,2],[2,0]] },
+  { size: 5, score:  8, name: '五消 T',          cells: [[0,2],[1,0],[1,1],[1,2],[2,2]] },
+  { size: 5, score:  8, name: '五消 +',          cells: [[0,1],[1,0],[1,1],[1,2],[2,1]] },
+  { size: 5, score:  8, name: '五消 L',          cells: [[0,0],[0,1],[0,2],[1,0],[2,0]] },
+  { size: 5, score:  8, name: '五消 L',          cells: [[0,0],[0,1],[0,2],[1,2],[2,2]] },
+  { size: 5, score:  8, name: '五消 L',          cells: [[0,0],[1,0],[2,0],[2,1],[2,2]] },
+  { size: 5, score:  8, name: '五消 L',          cells: [[0,2],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 4, score:  5, name: '四消（左上）',    cells: [[0,0],[0,1],[1,0],[1,1]] },
+  { size: 4, score:  5, name: '四消（右上）',    cells: [[0,1],[0,2],[1,1],[1,2]] },
+  { size: 4, score:  5, name: '四消（左下）',    cells: [[1,0],[1,1],[2,0],[2,1]] },
+  { size: 4, score:  5, name: '四消（右下）',    cells: [[1,1],[1,2],[2,1],[2,2]] },
+  { size: 3, score:  3, name: '三消（橫1）',     cells: [[0,0],[0,1],[0,2]] },
+  { size: 3, score:  3, name: '三消（橫2）',     cells: [[1,0],[1,1],[1,2]] },
+  { size: 3, score:  3, name: '三消（橫3）',     cells: [[2,0],[2,1],[2,2]] },
+  { size: 3, score:  3, name: '三消（直1）',     cells: [[0,0],[1,0],[2,0]] },
+  { size: 3, score:  3, name: '三消（直2）',     cells: [[0,1],[1,1],[2,1]] },
+  { size: 3, score:  3, name: '三消（直3）',     cells: [[0,2],[1,2],[2,2]] },
+];
+
+// V4: 6 種任務（各 +9 分），依能量判定
+const QUESTS = {
+  pyro:  { score: 9, desc: '同一回合觸發 2 次消除',      kind: 'turn',  check: (g, p, t) => (t.eliminations || 0) >= 2 },
+  cryo:  { score: 9, desc: '任一星陣中有 4 張同色牌',    kind: 'state', check: (g, p) => maxColorInAnyGrid(g, p) >= 4 },
+  dark:  { score: 9, desc: '手牌中有 3 張相同星體的牌',  kind: 'state', check: (g, p) => maxShapeCount(p.hand) >= 3 },
+  solar: { score: 9, desc: '單回合總消除得 6 分以上',    kind: 'turn',  check: (g, p, t) => (t.eliminationScore || 0) >= 6 },
+  anti:  { score: 9, desc: '單次消除 4 張（四消以上）',  kind: 'turn',  check: (g, p, t) => (t.maxElimSingle || 0) >= 4 },
+  quan:  { score: 9, desc: '任一星陣中同時有 6 種不同能量', kind: 'state', check: (g, p) => maxEnergiesInAnyGrid(g, p) >= 6 },
+};
+
+// V4: 3 種星際能力，依星體形狀
+const ABILITY_DESCS = {
+  meteor: '代替：移除星陣 1 張，手牌 1 張放置補入。',
+  comet:  '插入：從手牌推入星陣，推出的牌直接棄入棄牌堆。',
+  black:  '互換：中央星陣 1 張和個人星陣 1 張互換位置。',
+};
+
+// Void Walker 角色（保留，主動/被動依 V4 調整）
+const CHARACTERS = {
+  kali: {
+    id: 'kali', name: '卡莉·薩恩', en: 'Kali Sarn', energy: 'pyro',
+    role: '星際傭兵', gender: '女',
+    flavor: '曾是殖民地防衛隊的爆破專家，一場意外讓她的神經系統與 Pyro 能量永久共鳴。',
+    passiveDesc: '消除超過三個時，從棄牌堆取任意 1 張加入手牌。',
+    activeName: '引爆',
+    activeDesc: '本回合所有消除分數 ×2。',
+  },
+  eo: {
+    id: 'eo', name: '艾歐·貝納', en: 'Eo Venna', energy: 'cryo',
+    role: '低溫物理學家', gender: '男',
+    flavor: '在絕對零度的研究站獨自工作了七年，學會了讓時間慢下來。',
+    passiveDesc: '每回合可將預備區任意 1～3 張棄入棄牌堆，從牌庫補入等量牌。',
+    activeName: '引導',
+    activeDesc: '下一次消除的補牌改從預備區選擇，可觸發連鎖消除。',
+  },
+  siel: {
+    id: 'siel', name: '席爾·渥恩', en: 'Siel Vorn', energy: 'dark',
+    role: '虛空預言者', gender: '不明',
+    flavor: '沒有人知道席爾從哪裡來。他們說的話總是提前一步。',
+    passiveDesc: '觀測任務上限 +3（最多 6 個），手牌上限 +3（最多 9 張）。棄牌換牌時可從棄牌堆頂取牌。',
+    activeName: '虛空召喚',
+    activeDesc: '從棄牌堆取任意 1 張，推入任意星陣（個人或中央）的任意邊緣。',
+  },
+  luna: {
+    id: 'luna', name: '露娜·歐希', en: 'Luna Oshi', energy: 'solar',
+    role: '恆星航行者', gender: '女',
+    flavor: '以太陽帆橫渡過四個星系，從不攜帶武器。',
+    passiveDesc: '完成任務時，可棄 3 張手牌，從預備區放置 1 張牌作為任務。',
+    activeName: '輻射爆',
+    activeDesc: '移除所有觀測任務，重抽（移除數+1）張新任務。',
+  },
+  ryk: {
+    id: 'ryk', name: '瑞克·哈登', en: 'Ryk Haden', energy: 'anti',
+    role: '逆向工程師', gender: '男',
+    flavor: '他的專長是讓事情倒回去。',
+    passiveDesc: '棄牌換牌時可棄 2 張，從預備區與牌庫頂自由分配取 2 張。',
+    activeName: '置換',
+    activeDesc: '從牌庫抽 1 張加入手牌，並將手牌任 1 張與星陣中任 1 張互換。',
+  },
+  tavi: {
+    id: 'tavi', name: '塔薇·莫絲', en: 'Tavi Moss', energy: 'quan',
+    role: '量子生態學家', gender: '女',
+    flavor: '她相信宇宙中所有的粒子都互相知道對方的存在。',
+    passiveDesc: '手牌收到被推出的牌時，可同時將手牌中任意 1 張設為任務。',
+    activeName: '疊加',
+    activeDesc: '從棄牌堆/牌庫/預備區合計取 3 張，其中 2 張可放置為任務。',
+  },
+};
+
+// ========== 2. 輔助函式 ==========
+function shapeSVG(shape, color, size = 28) {
+  const c = color;
+  if (shape === 'meteor') {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 32 32">
+      <circle cx="20" cy="12" r="6" fill="${c}" />
+      <circle cx="10" cy="22" r="2" fill="${c}" opacity="0.6"/>
+      <circle cx="6" cy="26" r="1" fill="${c}" opacity="0.4"/>
+    </svg>`;
+  } else if (shape === 'comet') {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 32 32">
+      <path d="M16 4 L19 13 L28 16 L19 19 L16 28 L13 19 L4 16 L13 13 Z" fill="${c}" />
+    </svg>`;
+  } else {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="11" fill="none" stroke="${c}" stroke-width="3"/>
+      <circle cx="16" cy="16" r="5" fill="${c}" opacity="0.85"/>
+    </svg>`;
+  }
+}
+
+function buildDeck() {
+  const cards = [];
+  let id = 0;
+  for (const e of ENERGIES)
+    for (const s of SHAPES)
+      for (let i = 0; i < 6; i++)
+        cards.push({ uid: id++, energy: e.id, shape: s.id });
+  return cards;
+}
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function drawN(g, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    if (g.deck.length === 0) {
+      if (g.discard.length === 0) break;
+      g.deck = shuffle(g.discard.slice());
+      g.discard = [];
+      log('系統：牌庫用完，將棄牌堆重新洗牌。', 'system');
+    }
+    out.push(g.deck.shift());
+  }
+  return out;
+}
+
+function refillReserve() {
+  if (!G || !G.reserve) return;
+  while (G.reserve.length < 3) {
+    const d = drawN(G, 1);
+    if (!d.length) break;
+    G.reserve.push(d[0]);
+  }
+}
+
+function makeEmptyGrid() {
+  return [[null,null,null],[null,null,null],[null,null,null]];
+}
+
+function cardLabel(card) {
+  return `${SHAPE_BY[card.shape].name}/${ENERGY_BY[card.energy].name}`;
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ========== 3. 消除偵測（V4 形狀模式）==========
+function findMatchesInGrid(grid) {
+  const used = new Array(9).fill(false);
+  const results = [];
+  for (const pat of ELIM_PATTERNS) {
+    let energy = null, ok = true;
+    for (const [r, c] of pat.cells) {
+      if (used[r * 3 + c]) { ok = false; break; }
+      const card = grid[r] && grid[r][c];
+      if (!card) { ok = false; break; }
+      if (energy === null) energy = card.energy;
+      else if (card.energy !== energy) { ok = false; break; }
+    }
+    if (ok && energy !== null) {
+      results.push({ ...pat, energy, cells: pat.cells.slice() });
+      for (const [r, c] of pat.cells) used[r * 3 + c] = true;
+    }
+  }
+  return results;
+}
+
+// ========== 4. 任務輔助函式 ==========
+function maxShapeCount(hand) {
+  const m = {};
+  hand.forEach(c => m[c.shape] = (m[c.shape] || 0) + 1);
+  return Math.max(0, ...Object.values(m));
+}
+function maxColorInAnyGrid(g, p) {
+  const grids = [G.centralGrid, p.personalGrid].filter(Boolean);
+  let best = 0;
+  for (const grid of grids) {
+    const counts = {};
+    for (let r = 0; r < 3; r++)
+      for (let c = 0; c < 3; c++)
+        if (grid[r][c]) counts[grid[r][c].energy] = (counts[grid[r][c].energy] || 0) + 1;
+    const mx = Math.max(0, ...Object.values(counts));
+    if (mx > best) best = mx;
+  }
+  return best;
+}
+function maxEnergiesInAnyGrid(g, p) {
+  const grids = [G.centralGrid, p.personalGrid].filter(Boolean);
+  let best = 0;
+  for (const grid of grids) {
+    const s = new Set();
+    for (let r = 0; r < 3; r++)
+      for (let c = 0; c < 3; c++)
+        if (grid[r][c]) s.add(grid[r][c].energy);
+    if (s.size > best) best = s.size;
+  }
+  return best;
+}
+
+// ========== 5. 填牌（初始化星陣）==========
+function fillGrid(grid) {
+  // 逐格填入，若立即觸發消除則丟棄並重補
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      let placed = false, tries = 0;
+      while (!placed && tries < 50) {
+        tries++;
+        const d = drawN(G, 1);
+        if (!d.length) { placed = true; break; }
+        grid[r][c] = d[0];
+        if (findMatchesInGrid(grid).length > 0) {
+          G.discard.push(grid[r][c]);
+          grid[r][c] = null;
+        } else {
+          placed = true;
+        }
+      }
+    }
+  }
+}
+
+// 推入 3×3 星陣（dir: down/up/left/right, idx: col for down/up, row for left/right）
+function pushIntoGrid3x3(grid, card, dir, idx) {
+  const isCentral = (grid === G.centralGrid);
+  const m = isCentral ? G.centralMarkers : null;
+  let pushedOut = null;
+  if (dir === 'down') {
+    pushedOut = grid[2][idx];
+    for (let r = 2; r > 0; r--) { grid[r][idx] = grid[r-1][idx]; if (m) m[r][idx] = m[r-1][idx]; }
+    grid[0][idx] = card;
+    if (m) m[0][idx] = null; // 新推入格無標記（之後由 onPushClick 詢問是否放）
+  } else if (dir === 'up') {
+    pushedOut = grid[0][idx];
+    for (let r = 0; r < 2; r++) { grid[r][idx] = grid[r+1][idx]; if (m) m[r][idx] = m[r+1][idx]; }
+    grid[2][idx] = card;
+    if (m) m[2][idx] = null;
+  } else if (dir === 'right') {
+    pushedOut = grid[idx][2];
+    for (let c = 2; c > 0; c--) { grid[idx][c] = grid[idx][c-1]; if (m) m[idx][c] = m[idx][c-1]; }
+    grid[idx][0] = card;
+    if (m) m[idx][0] = null;
+  } else if (dir === 'left') {
+    pushedOut = grid[idx][0];
+    for (let c = 0; c < 2; c++) { grid[idx][c] = grid[idx][c+1]; if (m) m[idx][c] = m[idx][c+1]; }
+    grid[idx][2] = card;
+    if (m) m[idx][2] = null;
+  }
+  return pushedOut; // null if the spot was empty (edge case)
+}
+
+// 推入中央後，詢問玩家是否放下標記（isCentralPush: 推入的行/列方向+idx，用來找新插入格）
+async function askPlaceMarker(cp, dir, idx) {
+  if (cp.ai) {
+    // AI 永遠放標記
+    const [r, c] = getInsertedCell(dir, idx);
+    G.centralMarkers[r][c] = cp.idx;
+    log(`${cp.name} 在中央星陣 (${r+1},${c+1}) 放下標記。`);
+    return;
+  }
+  return new Promise(resolve => {
+    openModal({
+      title: '中央星陣標記',
+      body: () => {
+        const wrap = el('div', {});
+        wrap.appendChild(el('p', { style: 'color:#e8ecff;margin-bottom:12px' }, '是否在推入的格子放下你的玩家標記？'));
+        wrap.appendChild(el('p', { style: 'color:#a8b5e0;font-size:13px' }, '消除時，你的標記每個額外得 +2 分。標記隨牌消失。'));
+        return wrap;
+      },
+      actions: [
+        { label: '放下標記', primary: true, onclick: () => {
+          const [r, c] = getInsertedCell(dir, idx);
+          G.centralMarkers[r][c] = cp.idx;
+          log(`${cp.name} 在中央星陣 (${r+1},${c+1}) 放下標記。`);
+          closeModal(); resolve();
+        }},
+        { label: '不放', onclick: () => { closeModal(); resolve(); } }
+      ]
+    });
+  });
+}
+
+function getInsertedCell(dir, idx) {
+  if (dir === 'down') return [0, idx];
+  if (dir === 'up') return [2, idx];
+  if (dir === 'right') return [idx, 0];
+  if (dir === 'left') return [idx, 2];
+}
+
+
+// ========== 6. 遊戲狀態 ==========
+let G = null;
+
+let UI = { selectedHand: null, awaiting: null };
+
+function openModal(config) {
+  UI.modal = config;
+  // Render modal immediately without full re-render if game is active
+  if (G && G.phase === 'playing') {
+    // Remove any existing modals first
+    document.querySelectorAll('.modal-bg').forEach(n => n.remove());
+    renderModal(config);
+  } else {
+    render();
+  }
+}
+
+function closeModal() {
+  UI.modal = null;
+  document.querySelectorAll('.modal-bg').forEach(n => n.remove());
+}
+
+function log(text, type) {
+  if (!G) return;
+  if (!G.log) G.log = [];
+  G.log.push({ text, type: type || '' });
+  if (G.log.length > 60) G.log = G.log.slice(-60);
+}
+
+function initTurnState() {
+  G.turn = { eliminations: 0, eliminationScore: 0, maxElimSingle: 0, pushed: false, swapsUsed: 0, questsCompleted: 0, kaliDouble: false };
+  return G.turn;
+}
+
+function effectiveHandLimit(p) { return 6 + (p.character === 'siel' ? 3 : 0); }
+function effectiveQuestLimit(p) { return 3 + (p.character === 'siel' ? 3 : 0); }
+
+function startGame(config) {
+  const playerColors = ['#5ec5ff', '#ff8a6a', '#b58aff', '#4dd4ac'];
+  const players = config.players.map((p, i) => ({
+    idx: i, name: p.name, ai: p.ai, color: playerColors[i],
+    score: 0, hand: [], quests: [], completedQuests: 0,
+    personalGrid: null, character: null,
+    characterActiveUsed: false, eoPassiveUsedThisTurn: false,
+  }));
+  const deck = shuffle(buildDeck());
+  G = {
+    config, players,
+    centralGrid: makeEmptyGrid(),
+    centralMarkers: [[null,null,null],[null,null,null],[null,null,null]],
+    deck, discard: [], reserve: [],
+    currentPlayer: 0, log: [],
+    turn: null, phase: 'setup',
+    winnerIdx: null, setupPickIdx: 0, gameEndTriggered: false,
+    currentSetupCards: null, // 連線模式：儲存當前玩家的開局 5 張牌（由 host 抽牌後寫入 Firebase）
+    firstPlayer: 0, // 首家標記：當前輪的起始玩家
+    voidWalker: !!config.voidWalker,
+    round: 1, turnCount: 0,
+  };
+  // Fill personal grids
+  for (const p of G.players) {
+    p.personalGrid = makeEmptyGrid();
+    fillGrid(p.personalGrid);
+  }
+  // Fill central grid
+  fillGrid(G.centralGrid);
+  refillReserve();
+
+  if (G.voidWalker) {
+    G.phase = 'character-pick';
+    beginCharacterPick();
+  } else {
+    G.phase = 'setup-pick';
+    beginSetupPick();
+  }
+}
+
+// ========== 7. 角色選擇 ==========
+function beginCharacterPick() {
+  G.characterPickIdx = 0;
+  G.takenChars = new Set();
+  if (!isOnlineMode()) nextCharacterPick();
+  // 連線模式：不在此處直接開 modal，由 Firebase listener 的 onlineHandleCharacterPickPhase() 驅動
+}
+
+function nextCharacterPick() {
+  if (G.characterPickIdx >= G.players.length) {
+    if (isOnlineMode()) return; // 連線模式：由 onlineHandleCharacterPickPhase 處理階段過渡
+    G.phase = 'setup-pick';
+    beginSetupPick();
+    return;
+  }
+  const p = G.players[G.characterPickIdx];
+  const available = Object.values(CHARACTERS).filter(c => !G.takenChars.has(c.id));
+  if (p.ai) {
+    const pick = available[Math.floor(Math.random() * available.length)];
+    p.character = pick.id;
+    G.takenChars.add(pick.id);
+    log(`${p.name} 選擇了 ${pick.name}（${ENERGY_BY[pick.energy].en}）。`, 'system');
+    G.characterPickIdx++;
+    if (isOnlineMode() && myPlayerIdx === 0) {
+      pushState(); // Host 推送 AI 選角後的狀態，Firebase listener 驅動後續
+    } else if (!isOnlineMode()) {
+      setTimeout(nextCharacterPick, 300);
+    }
+  } else {
+    // 連線模式：只有本地玩家才開 modal，非本地玩家等待 Firebase 更新
+    if (isOnlineMode() && p.idx !== myPlayerIdx) {
+      render(); // 顯示等待畫面
+      return;
+    }
+    openModal({
+      title: `${p.name}：選擇你的 Void Walker`,
+      body: () => {
+        const wrap = el('div', {});
+        available.forEach(c => {
+          const e = ENERGY_BY[c.energy];
+          wrap.appendChild(el('div', { class: 'choice-card', style: `border-left: 4px solid ${e.color};`,
+            onclick: () => {
+              p.character = c.id;
+              G.takenChars.add(c.id);
+              log(`${p.name} 選擇了 ${c.name}（${e.en}）。`, 'system');
+              closeModal();
+              G.characterPickIdx++;
+              if (isOnlineMode()) {
+                pushState(); // 推送後由 Firebase listener 驅動後續玩家選角
+              } else {
+                nextCharacterPick();
+              }
+            }
+          },
+            el('div', { class: 'ctitle' }, `${c.name} · ${c.en}`),
+            el('div', { class: 'cdesc' },
+              el('div', {}, `${e.en} · ${c.role}`),
+              el('div', { style: 'font-style:italic;color:#94a4d3;margin:4px 0;' }, c.flavor),
+              el('div', {}, `▸ 被動：${c.passiveDesc}`),
+              el('div', {}, `▸ 主動「${c.activeName}」：${c.activeDesc}`),
+            )
+          ));
+        });
+        return wrap;
+      },
+      actions: []
+    });
+  }
+}
+
+// ========== 8. 開局 5 選 3 ==========
+function beginSetupPick() {
+  G.setupPickIdx = 0;
+  if (!isOnlineMode()) { nextSetupPick(); return; }
+  // 連線模式：Host 預先抽第一位玩家的牌並存入 state，由 Firebase listener 驅動彈窗
+  // (hostStartGame 在 startGame 後負責 pushState，此處只需確保 currentSetupCards 準備好)
+  const firstP = G.players[0];
+  if (!firstP.ai) G.currentSetupCards = drawN(G, 5);
+  // 推送動作在 hostStartGame 完成
+}
+
+function nextSetupPick() {
+  if (G.setupPickIdx >= G.players.length) {
+    G.phase = 'playing';
+    log(`系統：遊戲開始！由 ${G.players[G.currentPlayer].name} 先手。`, 'system');
+    if (isOnlineMode()) pushState(); // 連線模式：開局設置完成後推送初始狀態給所有玩家
+    render();
+    setTimeout(maybeRunAITurn, 600);
+    return;
+  }
+  const p = G.players[G.setupPickIdx];
+  const five = drawN(G, 5);
+  if (p.ai) {
+    const sorted = [...five].sort((a, b) => SHAPE_BY[b.shape].stars - SHAPE_BY[a.shape].stars);
+    p.hand = [sorted[1], sorted[2], sorted[3]];
+    p.quests = [{ energy: sorted[0].energy, card: sorted[0] }];
+    G.discard.push(sorted[4]);
+    log(`${p.name} 完成開局抽牌。`, 'system');
+    G.setupPickIdx++;
+    setTimeout(nextSetupPick, 400);
+  } else {
+    openSetupPickModal(p, five);
+  }
+}
+
+function openSetupPickModal(p, five) {
+  const state = { hand: [], quest: null, discard: null };
+  const update = () => {
+    document.querySelectorAll('.modal-bg').forEach(n => n.remove());
+    openModal({
+      title: `${p.name}：開局抽 5 選 3`,
+      body: () => buildSetupPickBody(p, five, state, update),
+      actions: []
+    });
+  };
+  update();
+}
+
+function buildSetupPickBody(p, five, state, update) {
+  const wrap = el('div', {});
+  wrap.appendChild(el('p', { class: 'muted small' }, '點 3 張手牌、1 張任務、1 張棄牌'));
+  wrap.appendChild(el('p', { class: 'small' }, `手牌 ${state.hand.length}/3，任務 ${state.quest != null ? 1 : 0}/1，棄牌 ${state.discard != null ? 1 : 0}/1`));
+  const grid = el('div', { class: 'pick-grid' });
+  five.forEach((card, idx) => {
+    const role = state.hand.includes(idx) ? 'hand' : state.quest === idx ? 'quest' : state.discard === idx ? 'discard' : null;
+    const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+    const div = el('div', {
+      class: 'hand-card pick-card' + (role ? ' picked' : ''),
+      style: `--cc: ${e.color};`,
+      title: `${e.name} · ${s.name}`,
+      onclick: () => {
+        if (role == null) {
+          if (state.hand.length < 3) state.hand.push(idx);
+          else if (state.quest == null) state.quest = idx;
+          else if (state.discard == null) state.discard = idx;
+        } else if (role === 'hand') { state.hand = state.hand.filter(x => x !== idx); if (state.quest == null) state.quest = idx; else if (state.discard == null) state.discard = idx; }
+        else if (role === 'quest') { state.quest = null; if (state.discard == null) state.discard = idx; }
+        else { state.discard = null; }
+        update();
+      }
+    });
+    div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div>
+                     <div class="label">${e.en.toUpperCase()}</div>
+                     <div class="shape-label">${s.name}</div>
+                     <div class="stars">${'★'.repeat(s.stars)}</div>`;
+    if (role) {
+      const tag = el('div', { style: 'position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:10px;color:#ffd6a8;' },
+        role === 'hand' ? '手牌' : role === 'quest' ? '任務' : '棄牌');
+      div.appendChild(tag);
+      div.style.marginBottom = '20px';
+    }
+    grid.appendChild(div);
+  });
+  wrap.appendChild(grid);
+  const ready = state.hand.length === 3 && state.quest != null && state.discard != null;
+  wrap.appendChild(el('div', { class: 'modal-actions' },
+    el('button', {
+      class: ready ? '' : 'secondary',
+      style: ready ? '' : 'opacity:0.4;pointer-events:none;',
+      onclick: () => {
+        p.hand = state.hand.map(i => five[i]);
+        p.quests = [{ energy: five[state.quest].energy, card: five[state.quest] }];
+        G.discard.push(five[state.discard]);
+        log(`${p.name} 完成開局抽牌。`, 'system');
+        G.setupPickIdx++;
+        if (isOnlineMode()) {
+          G.currentSetupCards = null;
+          // 若是 host，為下一位非 AI 玩家預先抽牌
+          if (myPlayerIdx === 0 && G.setupPickIdx < G.players.length) {
+            const nextP = G.players[G.setupPickIdx];
+            if (!nextP.ai) G.currentSetupCards = drawN(G, 5);
+          }
+          closeModal();
+          pushState(); // Firebase listener 驅動後續流程
+        } else {
+          closeModal();
+          nextSetupPick();
+        }
+      }
+    }, '確認')
+  ));
+  return wrap;
+}
+
+// ========== 9. 回合流程 ==========
+async function endTurn() {
+  if (UI.awaiting) return; // 能力選擇進行中，不允許結束回合
+  const cp = G.players[G.currentPlayer];
+  // 結束回合後從預備區選 1 張
+  await pickFromReserve(cp);
+  refillReserve();
+  // 手牌超限則丟牌
+  const lim = effectiveHandLimit(cp);
+  if (cp.hand.length > lim) {
+    if (cp.ai) {
+      while (cp.hand.length > lim) G.discard.push(cp.hand.pop());
+    } else {
+      await forceDiscardToLimit(cp, lim);
+    }
+  }
+  // 切換玩家
+  G.turn = null;
+  G.awaitingEndTurn = false;
+  UI.selectedHand = null;
+  cp.eoPassiveUsedThisTurn = false;
+  G.currentPlayer = (G.currentPlayer + 1) % G.players.length;
+  if (G.currentPlayer === 0) {
+    // 本輪結束：檢查勝利條件
+    if (G.gameEndTriggered) {
+      const sorted = [...G.players].sort((a, b) => b.score - a.score || b.completedQuests - a.completedQuests);
+      G.winnerIdx = sorted[0].idx;
+      G.phase = 'game-over';
+      render();
+      return;
+    }
+    G.round++;
+  }
+  G.turnCount++;
+  log(`— ${G.players[G.currentPlayer].name} 的回合開始。`, 'system');
+  render();
+  setTimeout(maybeRunAITurn, 500);
+}
+
+async function pickFromReserve(cp) {
+  if (!G.reserve || G.reserve.length === 0) return;
+  if (cp.ai) {
+    const picked = G.reserve.shift();
+    if (cp.hand.length < effectiveHandLimit(cp)) cp.hand.push(picked);
+    else G.discard.push(picked);
+    return;
+  }
+  return new Promise(resolve => {
+    openModal({
+      title: '回合結束：從預備區選 1 張加入手牌',
+      body: () => {
+        const wrap = el('div', { class: 'pick-grid' });
+        G.reserve.forEach((card, i) => {
+          const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+          const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+            onclick: () => {
+              const taken = G.reserve.splice(i, 1)[0];
+              if (cp.hand.length < effectiveHandLimit(cp)) cp.hand.push(taken);
+              else G.discard.push(taken);
+              closeModal(); resolve();
+            }
+          });
+          div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div>
+                           <div class="label">${e.en.toUpperCase()}</div>
+                           <div class="shape-label">${s.name}</div>
+                           <div class="stars">${'★'.repeat(s.stars)}</div>`;
+          wrap.appendChild(div);
+        });
+        return wrap;
+      },
+      actions: []
+    });
+  });
+}
+
+async function forceDiscardToLimit(cp, lim) {
+  return new Promise(resolve => {
+    const update = () => {
+      document.querySelectorAll('.modal-bg').forEach(n => n.remove());
+      if (cp.hand.length <= lim) { resolve(); return; }
+      openModal({
+        title: `手牌超限，請棄 ${cp.hand.length - lim} 張`,
+        body: () => {
+          const wrap = el('div', { class: 'pick-grid' });
+          cp.hand.forEach((card, i) => {
+            const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+            const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+              onclick: () => {
+                G.discard.push(cp.hand.splice(i, 1)[0]);
+                update();
+              }
+            });
+            div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div>
+                             <div class="label">${e.en.toUpperCase()}</div>
+                             <div class="shape-label">${s.name}</div>`;
+            wrap.appendChild(div);
+          });
+          return wrap;
+        },
+        actions: []
+      });
+    };
+    update();
+  });
+}
+
+
+// ========== 10. 消除結算 ==========
+async function resolveCascades(grid, cp) {
+  if (!G.turn) initTurnState();
+  const matches = findMatchesInGrid(grid);
+  if (matches.length === 0) return;
+
+  // 動畫標記
+  matches.forEach(m => {
+    m.cells.forEach(([r, c]) => {
+      const div = findGridCellDiv(grid, r, c);
+      if (div) div.classList.add('matched');
+    });
+  });
+  await delay(600);
+
+  let turnScore = 0;
+  for (const m of matches) {
+    let score = m.score;
+    if (G.turn.kaliDouble) score *= 2;
+    const extra = score > m.score ? ` ×2` : '';
+    log(`✨ ${m.name}（${ENERGY_BY[m.energy].name}）+${score}${extra}`, 'score');
+    G.turn.eliminations++;
+    G.turn.eliminationScore += score;
+    if (m.size > G.turn.maxElimSingle) G.turn.maxElimSingle = m.size;
+    turnScore += score;
+    // 移除消除的格子
+    m.cells.forEach(([r, c]) => { G.discard.push(grid[r][c]); grid[r][c] = null; });
+    // 中央星陣標記加分
+    if (grid === G.centralGrid) {
+      const markerBonus = {};
+      m.cells.forEach(([r, c]) => {
+        const ownerIdx = G.centralMarkers[r][c];
+        if (ownerIdx !== null && ownerIdx !== undefined) {
+          markerBonus[ownerIdx] = (markerBonus[ownerIdx] || 0) + 2;
+          G.centralMarkers[r][c] = null;
+        }
+      });
+      for (const [pidx, bonus] of Object.entries(markerBonus)) {
+        G.players[pidx].score += bonus;
+        log(`🏴 ${G.players[pidx].name} 標記加分 +${bonus}`, 'score');
+      }
+    }
+    // 卡莉被動：消除超過3個時，從棄牌堆取任意1張（格子已清除後再選）
+    if (m.size > 3 && cp.character === 'kali' && cp.hand.length < effectiveHandLimit(cp)) {
+      if (G.discard.length > 0 && !cp.ai) {
+        await new Promise(resolve => {
+          openModal({
+            title: '✨ 卡莉被動：從棄牌堆取任意 1 張加入手牌',
+            body: () => {
+              const wrap = el('div', { class: 'pick-grid' });
+              [...G.discard].reverse().forEach((card) => {
+                const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+                const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                  onclick: () => {
+                    const idx2 = G.discard.indexOf(card);
+                    if (idx2 >= 0) cp.hand.push(G.discard.splice(idx2, 1)[0]);
+                    log(`✨ 卡莉被動：從棄牌堆取回 1 張牌。`, 'system');
+                    closeModal(); resolve();
+                  }
+                });
+                div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+                wrap.appendChild(div);
+              });
+              return wrap;
+            },
+            actions: [{ label: '跳過', onclick: () => { closeModal(); resolve(); } }]
+          });
+        });
+      } else if (cp.ai && G.discard.length > 0) {
+        cp.hand.push(G.discard.splice(G.discard.length - 1, 1)[0]);
+        log(`✨ 卡莉被動：從棄牌堆取回 1 張牌。`, 'system');
+      }
+    }
+  }
+  cp.score += turnScore;
+  render();
+  await delay(300);
+
+  // 補牌（由上往下、由左往右；補入後立即觸發消除則丟棄繼續補）
+  const useEoGuide = G.turn && G.turn.eoGuide && cp.character === 'eo' && G.reserve && G.reserve.length > 0;
+  if (useEoGuide) { G.turn.eoGuide = false; } // 消耗一次
+
+  if (useEoGuide && !cp.ai) {
+    // 艾歐引導：玩家從預備區選牌補入每個空格
+    const emptyCells = [];
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) if (grid[r][c] === null) emptyCells.push([r, c]);
+    for (const [r, c] of emptyCells) {
+      if (G.reserve.length === 0) {
+        // 預備區已空，改從牌庫補
+        const d = drawN(G, 1);
+        if (d.length) grid[r][c] = d[0];
+        continue;
+      }
+      await new Promise(resolve => {
+        openModal({
+          title: `艾歐引導：選擇補入 (${r+1},${c+1}) 的牌`,
+          body: () => {
+            const wrap = el('div', { class: 'pick-grid' });
+            G.reserve.forEach((card, i) => {
+              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                onclick: async () => {
+                  grid[r][c] = G.reserve.splice(i, 1)[0];
+                  closeModal();
+                  refillReserve();
+                  resolve();
+                }
+              });
+              div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+              wrap.appendChild(div);
+            });
+            return wrap;
+          },
+          actions: []
+        });
+      });
+    }
+    render();
+    // 艾歐引導可觸發連鎖消除
+    await resolveCascades(grid, cp);
+  } else {
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (grid[r][c] !== null) continue;
+        let tries = 0;
+        while (tries < 30) {
+          tries++;
+          const d = drawN(G, 1);
+          if (!d.length) break;
+          grid[r][c] = d[0];
+          if (findMatchesInGrid(grid).length > 0) {
+            G.discard.push(grid[r][c]);
+            grid[r][c] = null;
+            log(`系統：補入的牌立即觸發消除，丟棄重補。`, 'system');
+          } else {
+            break;
+          }
+        }
+      }
+    }
+    render();
+  }
+  if (cp.score >= 66 && !G.gameEndTriggered) {
+    G.gameEndTriggered = true;
+    log(`🌟 ${cp.name} 已達到 66 分！完成本輪後結算勝負。`, 'system');
+  }
+}
+
+function findGridCellDiv(grid, r, c) {
+  // grids are rendered with data-grid-id attribute
+  const gridId = grid === G.centralGrid ? 'central' : `personal-${G.currentPlayer}`;
+  const gridEl = document.querySelector(`[data-grid-id="${gridId}"]`);
+  if (!gridEl) return null;
+  // 5×5 wrapper: inner cells at positions (r+1)*5+(c+1)
+  const idx = (r + 1) * 5 + (c + 1);
+  const cell = gridEl.children[idx];
+  if (!cell) return null;
+  // cell IS the star-card div directly
+  return cell.classList.contains('star-card') ? cell : cell.querySelector('.star-card');
+}
+
+// ========== 11. 被推出的牌 ==========
+async function handlePushedOut(card, cp, sourceGrid) {
+  if (!card) return; // 空位吸收，沒有牌推出
+  log(`${cardLabel(card)} 被推出星陣。`);
+  if (cp.ai) {
+    const hLim = effectiveHandLimit(cp), qLim = effectiveQuestLimit(cp);
+    // AI 決策：優先手牌，其次任務
+    if (cp.hand.length < hLim) {
+      cp.hand.push(card);
+      log(`${cp.name} 將 ${cardLabel(card)} 收入手牌。`);
+    } else if (cp.quests.length < qLim) {
+      cp.quests.push({ energy: card.energy, card });
+      log(`${cp.name} 將 ${cardLabel(card)} 設為任務。`);
+    } else {
+      // 使用星際能力
+      G.discard.push(card);
+      await aiUseAbility(cp, card, sourceGrid);
+    }
+    render();
+    return;
+  }
+  return new Promise(resolve => {
+    const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+    const hLim = effectiveHandLimit(cp), qLim = effectiveQuestLimit(cp);
+    openModal({
+      title: `${s.name} · ${e.name} 被推出`,
+      body: () => {
+        const wrap = el('div', {});
+        const canHand = cp.hand.length < hLim;
+        const canQuest = cp.quests.length < qLim;
+
+        // 收入手牌
+        const handDiv = el('div', { class: 'choice-card' + (canHand ? '' : ' disabled') },
+          el('div', { class: 'ctitle' }, `收入手牌 ${canHand ? '' : `（上限 ${hLim}）`}`),
+          el('div', { class: 'cdesc' }, `目前手牌：${cp.hand.length}/${hLim}`));
+        handDiv.addEventListener('click', async () => {
+          if (!canHand) return;
+          cp.hand.push(card);
+          log(`${cp.name} 將 ${cardLabel(card)} 收入手牌。`);
+          closeModal(); render();
+          // 塔薇被動
+          if (cp.character === 'tavi' && cp.quests.length < effectiveQuestLimit(cp) && cp.hand.length > 0) {
+            await taviPassivePlaceQuest(cp);
+          }
+          resolve();
+        });
+        wrap.appendChild(handDiv);
+
+        // 發動星際能力
+        const abilityDiv = el('div', { class: 'choice-card' },
+          el('div', { class: 'ctitle' }, `發動星際能力（${s.name}）`),
+          el('div', { class: 'cdesc' }, ABILITY_DESCS[card.shape]));
+        abilityDiv.addEventListener('click', async () => {
+          G.discard.push(card);
+          closeModal();
+          await useAbility(cp, card, sourceGrid);
+          render(); resolve();
+        });
+        wrap.appendChild(abilityDiv);
+
+        // 設為觀測任務
+        const questDiv = el('div', { class: 'choice-card' + (canQuest ? '' : ' disabled') },
+          el('div', { class: 'ctitle' }, `設為觀測任務 ${canQuest ? '' : `（上限 ${qLim}）`}`),
+          el('div', { class: 'cdesc' }, `${e.name}任務：${QUESTS[card.energy].desc}（完成 +${QUESTS[card.energy].score} 分）`));
+        questDiv.addEventListener('click', () => {
+          if (!canQuest) return;
+          cp.quests.push({ energy: card.energy, card });
+          log(`${cp.name} 將 ${cardLabel(card)} 設為任務。`);
+          closeModal(); render(); resolve();
+        });
+        wrap.appendChild(questDiv);
+
+        return wrap;
+      },
+      actions: []
+    });
+  });
+}
+
+// ========== 12. 星際能力 ==========
+async function useAbility(cp, card, sourceGrid) {
+  log(`${cp.name} 發動星際能力（${SHAPE_BY[card.shape].name}）：${ABILITY_DESCS[card.shape]}`);
+  if (card.shape === 'meteor') await meteorAbility(cp, sourceGrid);
+  else if (card.shape === 'comet') await cometAbility(cp, sourceGrid);
+  else if (card.shape === 'black') await blackAbility(cp, sourceGrid);
+}
+
+async function aiUseAbility(cp, card, sourceGrid) {
+  if (card.shape === 'meteor') {
+    // AI 隕石（代替）：個人星陣移除第一格，放入手牌第一張
+    if (cp.personalGrid && cp.hand.length > 0) {
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+        if (cp.personalGrid[r][c]) {
+          G.discard.push(cp.personalGrid[r][c]);
+          cp.personalGrid[r][c] = cp.hand.shift();
+          await resolveCascades(cp.personalGrid, cp);
+          return;
+        }
+      }
+    }
+  } else if (card.shape === 'comet') {
+    // AI 彗星（插入）：手牌推入中央，推出的牌棄掉
+    if (cp.hand.length > 0) {
+      const pushed = cp.hand.shift();
+      const grid = G.centralGrid;
+      const pushedOut = pushIntoGrid3x3(grid, pushed, 'down', 0);
+      if (pushedOut) G.discard.push(pushedOut);
+      await resolveCascades(grid, cp);
+    }
+  } else if (card.shape === 'black') {
+    // AI 黑洞（互換）：中央[0][0] 和 個人[0][0] 互換
+    if (cp.personalGrid && G.centralGrid[0][0] && cp.personalGrid[0][0]) {
+      const tmp = G.centralGrid[0][0];
+      G.centralGrid[0][0] = cp.personalGrid[0][0];
+      cp.personalGrid[0][0] = tmp;
+      await resolveCascades(G.centralGrid, cp);
+      await resolveCascades(cp.personalGrid, cp);
+    }
+  }
+}
+
+async function meteorAbility(cp, sourceGrid) {
+  // 代替：點選星陣 1 格移除，再從手牌選 1 張放入
+  return new Promise(resolve => {
+    if (cp.hand.length === 0) { resolve(); return; }
+    UI.awaiting = {
+      type: 'meteorAbilityPickGrid',
+      hint: '選擇要替換的星陣格（移除後從手牌放入）。',
+      onPickGrid: async (grid, r, c) => {
+        if (!grid[r][c]) return;
+        UI.awaiting = null;
+        const removed = grid[r][c];
+        log(`${cp.name} 隕石能力：移除 ${cardLabel(removed)}。`);
+        openModal({
+          title: '隕石能力：選擇手牌放入該格',
+          body: () => {
+            const wrap = el('div', { class: 'pick-grid' });
+            cp.hand.forEach((hCard, i) => {
+              const e = ENERGY_BY[hCard.energy], s = SHAPE_BY[hCard.shape];
+              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                onclick: async () => {
+                  const placed = cp.hand.splice(i, 1)[0];
+                  G.discard.push(removed);
+                  grid[r][c] = placed;
+                  log(`${cp.name} 隕石能力：放入 ${cardLabel(placed)}。`);
+                  closeModal();
+                  await resolveCascades(grid, cp);
+                  render(); resolve();
+                }
+              });
+              div.innerHTML = `<div class="icon">${shapeSVG(hCard.shape, e.color, 40)}</div>
+                               <div class="label">${e.en.toUpperCase()}</div>
+                               <div class="shape-label">${s.name}</div>`;
+              wrap.appendChild(div);
+            });
+            return wrap;
+          },
+          actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
+        });
+      }
+    };
+    render();
+  });
+}
+
+async function cometAbility(cp, sourceGrid) {
+  // 插入：從手牌推入星陣，推出的牌直接棄入棄牌堆
+  return new Promise(resolve => {
+    if (cp.hand.length === 0) { resolve(); return; }
+    openModal({
+      title: '彗星能力：選擇要推入的手牌',
+      body: () => {
+        const wrap = el('div', { class: 'pick-grid' });
+        cp.hand.forEach((card, i) => {
+          const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+          const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+            onclick: () => {
+              const cometCard = cp.hand.splice(i, 1)[0];
+              closeModal();
+              UI.awaiting = {
+                type: 'cometAbilityPush',
+                hint: '選擇推入哪個星陣的哪條邊緣（推出的牌將直接棄置）。',
+                onPush: async (grid, dir, idx) => {
+                  UI.awaiting = null;
+                  const pushedOut = pushIntoGrid3x3(grid, cometCard, dir, idx);
+                  if (grid === G.centralGrid) await askPlaceMarker(cp, dir, idx);
+                  if (pushedOut) {
+                    G.discard.push(pushedOut);
+                    log(`${cp.name} 彗星能力：推出的 ${cardLabel(pushedOut)} 棄入棄牌堆。`);
+                  }
+                  await resolveCascades(grid, cp);
+                  render(); resolve();
+                }
+              };
+              render();
+            }
+          });
+          div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div>
+                           <div class="label">${e.en.toUpperCase()}</div>
+                           <div class="shape-label">${s.name}</div>`;
+          wrap.appendChild(div);
+        });
+        return wrap;
+      },
+      actions: [{ label: '取消', onclick: () => { UI.awaiting = null; resolve(); } }]
+    });
+  });
+}
+
+async function blackAbility(cp, sourceGrid) {
+  // 互換：中央星陣 1 張和個人星陣 1 張互換位置
+  return new Promise(resolve => {
+    let centralR = -1, centralC = -1, centralCard = null;
+    // 第一步：點選中央星陣
+    UI.awaiting = {
+      type: 'blackAbilityPickCentral',
+      hint: '先點選中央星陣中一張牌。',
+      onPickGrid: async (grid, r, c) => {
+        if (grid !== G.centralGrid || !G.centralGrid[r][c]) return;
+        centralR = r; centralC = c;
+        centralCard = G.centralGrid[r][c];
+        log(`${cp.name} 黑洞能力：選中中央 ${cardLabel(centralCard)}，再選個人星陣一張。`);
+        // 第二步：點選個人星陣
+        UI.awaiting = {
+          type: 'blackAbilityPickPersonal',
+          hint: '再點選個人星陣中一張牌完成互換。',
+          onPickGrid: async (grid2, r2, c2) => {
+            if (grid2 !== cp.personalGrid || !cp.personalGrid[r2][c2]) return;
+            UI.awaiting = null;
+            const personalCard = cp.personalGrid[r2][c2];
+            G.centralGrid[centralR][centralC] = personalCard;
+            cp.personalGrid[r2][c2] = centralCard;
+            log(`${cp.name} 黑洞能力：${cardLabel(centralCard)} ↔ ${cardLabel(personalCard)} 互換完成。`);
+            await resolveCascades(G.centralGrid, cp);
+            await resolveCascades(cp.personalGrid, cp);
+            render(); resolve();
+          }
+        };
+        render();
+      }
+    };
+    render();
+  });
+}
+
+async function taviPassivePlaceQuest(cp) {
+  return new Promise(resolve => {
+    const qLim = effectiveQuestLimit(cp);
+    if (cp.quests.length >= qLim || cp.hand.length === 0) { resolve(); return; }
+    openModal({
+      title: '塔薇被動：可將手牌設為任務',
+      body: () => {
+        const wrap = el('div', {});
+        wrap.appendChild(el('p', { class: 'muted small' }, '可選 1 張手牌設為觀測任務（可跳過）'));
+        const grid = el('div', { class: 'pick-grid' });
+        cp.hand.forEach((card, i) => {
+          const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+          const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+            onclick: () => {
+              if (cp.quests.length < effectiveQuestLimit(cp)) {
+                const taken = cp.hand.splice(i, 1)[0];
+                cp.quests.push({ energy: taken.energy, card: taken });
+                log(`${cp.name} 塔薇被動：設置 ${cardLabel(taken)} 為任務。`);
+              }
+              closeModal(); render(); resolve();
+            }
+          });
+          div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div>
+                           <div class="label">${e.en.toUpperCase()}</div>
+                           <div class="shape-label">${s.name}</div>`;
+          grid.appendChild(div);
+        });
+        wrap.appendChild(grid);
+        return wrap;
+      },
+      actions: [{ label: '跳過', onclick: () => resolve() }]
+    });
+  });
+}
+
+
+// ========== 13. 任務結算 ==========
+async function completeQuest(cp, idx) {
+  const q = cp.quests[idx];
+  const Q = QUESTS[q.energy];
+  cp.score += Q.score;
+  cp.completedQuests++;
+  cp.quests.splice(idx, 1);
+  if (G.turn) G.turn.questsCompleted = (G.turn.questsCompleted || 0) + 1;
+  log(`🎯 ${cp.name} 完成「${ENERGY_BY[q.energy].name}」任務 +${Q.score} 分！`, 'score');
+  // 露娜被動：可棄 3 張手牌從預備區放置 1 張牌作為任務
+  if (cp.character === 'luna') {
+    const canAfford = cp.hand.length >= 3;
+    const hasReserve = G.reserve && G.reserve.length > 0;
+    const hasQuestSlot = cp.quests.length < effectiveQuestLimit(cp);
+    if (!cp.ai && canAfford && hasReserve && hasQuestSlot) {
+      await new Promise(resolve => {
+        openModal({
+          title: '露娜被動：是否棄 3 張手牌從預備區放置任務？',
+          body: () => {
+            const wrap = el('div', { style: 'text-align:center' });
+            wrap.innerHTML = `<p>當前手牌：<b>${cp.hand.length}</b> 張（棄 3 張後剩 ${cp.hand.length - 3}）</p>
+              <p style="font-size:0.9em;color:var(--col-muted)">從預備區選 1 張牌加入觀測任務</p>`;
+            return wrap;
+          },
+          actions: [
+            { label: '放棄', onclick: () => { closeModal(); resolve(); } },
+            { label: '確認棄 3 張', onclick: () => {
+              closeModal();
+              // 步驟1：玩家選擇 3 張手牌棄掉
+              const lunaSelected = [];
+              const lunaUpdate = () => {
+                document.querySelectorAll('.modal-bg').forEach(n => n.remove());
+                openModal({
+                  title: `露娜被動：選擇棄牌（已選 ${lunaSelected.length}/3）`,
+                  body: () => {
+                    const wrap = el('div', { class: 'pick-grid' });
+                    cp.hand.forEach((hc, hi) => {
+                      const e2 = ENERGY_BY[hc.energy];
+                      const picked = lunaSelected.includes(hi);
+                      const div = el('div', { class: 'hand-card' + (picked ? ' selected' : ''), style: `--cc: ${e2.color}; cursor:pointer;`,
+                        onclick: () => {
+                          if (picked) lunaSelected.splice(lunaSelected.indexOf(hi), 1);
+                          else if (lunaSelected.length < 3) lunaSelected.push(hi);
+                          lunaUpdate();
+                        }
+                      });
+                      div.innerHTML = `<div class="icon">${shapeSVG(hc.shape, e2.color, 40)}</div><div class="label">${e2.en.toUpperCase()}</div><div class="shape-label">${SHAPE_BY[hc.shape].name}</div>`;
+                      wrap.appendChild(div);
+                    });
+                    return wrap;
+                  },
+                  actions: [
+                    { label: '取消', onclick: () => { closeModal(); resolve(); } },
+                    { label: `確認棄 ${lunaSelected.length} 張`, primary: lunaSelected.length === 3,
+                      onclick: () => {
+                        if (lunaSelected.length < 3) return;
+                        lunaSelected.sort((a, b) => b - a);
+                        lunaSelected.forEach(i => G.discard.push(cp.hand.splice(i, 1)[0]));
+                        closeModal();
+                        // 步驟2：選預備區牌作為任務
+                        openModal({
+                          title: '選擇 1 張預備區牌作為任務',
+                          body: () => {
+                            const wrap = el('div', { class: 'pick-grid' });
+                            G.reserve.forEach((c, i) => {
+                              const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
+                              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                                onclick: () => {
+                                  const chosen = G.reserve.splice(i, 1)[0];
+                                  cp.quests.push({ energy: chosen.energy, card: chosen });
+                                  log(`✨ 露娜被動：棄 3 張牌，放置「${ENERGY_BY[chosen.energy].name}」為任務。`, 'system');
+                                  closeModal(); render(); resolve();
+                                }
+                              });
+                              div.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+                              wrap.appendChild(div);
+                            });
+                            return wrap;
+                          },
+                                  actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
+                        });
+                      }
+                    }
+                  ]
+                });
+              };
+              lunaUpdate();
+            }}
+          ]
+        });
+      });
+    }
+    // 正常抽 1 張
+    const drawn = drawN(G, 1);
+    if (drawn.length) { cp.hand.push(drawn[0]); log(`${cp.name} 抽 1 張牌（任務獎勵）。`); }
+  } else {
+    const drawn = drawN(G, 1);
+    if (drawn.length) { cp.hand.push(drawn[0]); log(`${cp.name} 抽 1 張牌（任務獎勵）。`); }
+  }
+  if (cp.score >= 66 && !G.gameEndTriggered) {
+    G.gameEndTriggered = true;
+    log(`🌟 ${cp.name} 已達到 66 分！完成本輪後結算勝負。`, 'system');
+  }
+  render();
+}
+
+// ========== 14. 棄牌換牌 ==========
+async function beginSwapHand() {
+  const cp = G.players[G.currentPlayer];
+  if (!G.turn) initTurnState();
+  if (G.turn.swapsUsed > 0) return; // 每回合只能棄牌換牌 1 次
+  if (cp.hand.length === 0) return;
+  const isRyk = cp.character === 'ryk';
+  const isSiel = cp.character === 'siel';
+
+  if (isRyk) {
+    // 瑞克被動：棄 2 張，從預備區與牌庫頂自由分配取 2 張
+    if (cp.hand.length < 2) return;
+    const toDiscard = [];
+    await new Promise(resolve => {
+      const selectStep = () => {
+        openModal({
+          title: `瑞克被動：棄牌換牌（已選 ${toDiscard.length}/2 張棄牌）`,
+          body: () => {
+            const wrap = el('div', { class: 'pick-grid' });
+            cp.hand.forEach((card, i) => {
+              if (toDiscard.includes(i)) return; // 已選
+              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                onclick: () => {
+                  toDiscard.push(i);
+                  closeModal();
+                  if (toDiscard.length < 2) selectStep();
+                  else resolve();
+                }
+              });
+              div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+              wrap.appendChild(div);
+            });
+            return wrap;
+          },
+          actions: [{ label: '取消', onclick: () => { toDiscard.length = 0; closeModal(); resolve(); } }]
+        });
+      };
+      selectStep();
+    });
+    if (toDiscard.length < 2) return;
+    // 棄牌（從後往前移除避免 index 問題）
+    toDiscard.sort((a, b) => b - a);
+    toDiscard.forEach(i => G.discard.push(cp.hand.splice(i, 1)[0]));
+    // 取 2 張：自由從預備區或牌庫頂選
+    for (let pick = 0; pick < 2; pick++) {
+      await new Promise(resolve => {
+        const opts = [];
+        if (G.reserve && G.reserve.length > 0) opts.push('reserve');
+        if (G.deck && G.deck.length > 0) opts.push('deck');
+        if (opts.length === 0) { resolve(); return; }
+        if (opts.length === 1 && opts[0] === 'deck') {
+          const d = drawN(G, 1); if (d.length) cp.hand.push(d[0]);
+          log(`${cp.name} 從牌庫取 1 張。`); resolve(); return;
+        }
+        openModal({
+          title: `瑞克被動：選取第 ${pick + 1} 張（共 2 張）`,
+          body: () => {
+            const wrap = el('div', { style: 'display:flex;gap:12px;flex-wrap:wrap' });
+            if (G.reserve && G.reserve.length > 0) {
+              const rBtn = el('button', { style: 'flex:1;padding:10px;cursor:pointer', onclick: () => {
+                closeModal();
+                // 讓玩家選預備區
+                openModal({
+                  title: '選擇預備區牌',
+                  body: () => {
+                    const w = el('div', { class: 'pick-grid' });
+                    G.reserve.forEach((c, ri) => {
+                      const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
+                      const d = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                        onclick: () => { cp.hand.push(G.reserve.splice(ri, 1)[0]); closeModal(); resolve(); }
+                      });
+                      d.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+                      w.appendChild(d);
+                    });
+                    return w;
+                  },
+                  actions: []
+                });
+              }});
+              rBtn.textContent = '從預備區取';
+              wrap.appendChild(rBtn);
+            }
+            if (G.deck && G.deck.length > 0) {
+              const dBtn = el('button', { style: 'flex:1;padding:10px;cursor:pointer', onclick: () => {
+                closeModal();
+                const d = drawN(G, 1); if (d.length) cp.hand.push(d[0]);
+                log(`${cp.name} 從牌庫取 1 張。`); resolve();
+              }});
+              dBtn.textContent = '從牌庫頂取';
+              wrap.appendChild(dBtn);
+            }
+            return wrap;
+          },
+          actions: []
+        });
+      });
+    }
+    G.turn.swapsUsed++;
+    refillReserve();
+    render();
+    return;
+  }
+
+  // 普通棄牌換牌（含 Siel 可從棄牌堆頂取牌）
+  return new Promise(resolve => {
+    openModal({
+      title: '棄牌換牌：選擇要棄掉的手牌',
+      body: () => {
+        const wrap = el('div', { class: 'pick-grid' });
+        cp.hand.forEach((card, i) => {
+          const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+          const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+            onclick: async () => {
+              closeModal();
+              G.discard.push(cp.hand.splice(i, 1)[0]);
+              // 席爾被動：棄牌換牌時可從預備區或棄牌堆頂取牌
+              if (isSiel) {
+                const hasDiscard = G.discard.length > 0;
+                const hasReserve = G.reserve && G.reserve.length > 0;
+                if (hasDiscard && hasReserve) {
+                  await pickFromReserveOrDiscardSwap(cp);
+                } else if (hasDiscard) {
+                  // 只有棄牌堆可選
+                  const card = G.discard.splice(G.discard.length - 1, 1)[0];
+                  cp.hand.push(card);
+                  log(`✨ 席爾被動：從棄牌堆頂取回 ${ENERGY_BY[card.energy].name} 牌。`, 'system');
+                } else if (hasReserve) {
+                  await pickFromReserveSwap(cp);
+                }
+              } else {
+                await pickFromReserveSwap(cp);
+              }
+              G.turn.swapsUsed++;
+              refillReserve();
+              render(); resolve();
+            }
+          });
+          div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+          wrap.appendChild(div);
+        });
+        return wrap;
+      },
+      actions: [{ label: '取消', onclick: () => resolve() }]
+    });
+  });
+}
+
+async function pickFromReserveSwap(cp) {
+  if (!G.reserve || G.reserve.length === 0) return;
+  return new Promise(resolve => {
+    openModal({
+      title: '選擇從預備區換入的牌',
+      body: () => {
+        const wrap = el('div', { class: 'pick-grid' });
+        G.reserve.forEach((card, i) => {
+          const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+          const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+            onclick: () => {
+              cp.hand.push(G.reserve.splice(i, 1)[0]);
+              closeModal(); resolve();
+            }
+          });
+          div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+          wrap.appendChild(div);
+        });
+        return wrap;
+      },
+      actions: []
+    });
+  });
+}
+
+async function pickFromReserveOrDiscardSwap(cp) {
+  // 席爾被動：棄牌換牌時可從棄牌堆頂取牌
+  return new Promise(resolve => {
+    const discardTop = G.discard.length > 0 ? G.discard[G.discard.length - 1] : null;
+    openModal({
+      title: '席爾被動：選擇換入來源',
+      body: () => {
+        const wrap = el('div', { style: 'display:flex;gap:12px;flex-wrap:wrap' });
+        if (G.reserve && G.reserve.length > 0) {
+          const rBtn = el('button', { style: 'flex:1;padding:10px;cursor:pointer', onclick: () => {
+            closeModal(); pickFromReserveSwap(cp).then(resolve);
+          }});
+          rBtn.textContent = '從預備區取';
+          wrap.appendChild(rBtn);
+        }
+        if (discardTop) {
+          const e = ENERGY_BY[discardTop.energy];
+          const dBtn = el('button', { style: `flex:1;padding:10px;cursor:pointer;border:2px solid ${e.color}`, onclick: () => {
+            cp.hand.push(G.discard.splice(G.discard.length - 1, 1)[0]);
+            log(`✨ 席爾被動：從棄牌堆頂取回 ${e.name} 牌。`, 'system');
+            closeModal(); resolve();
+          }});
+          dBtn.innerHTML = `從棄牌堆頂取<br><small style="color:${e.color}">${e.en.toUpperCase()}</small>`;
+          wrap.appendChild(dBtn);
+        }
+        return wrap;
+      },
+      actions: []
+    });
+  });
+}
+
+// ========== 15. 星塵凝聚 ==========
+function canDeclareStardust(cp) {
+  if (!G || G.phase !== 'playing') return false;
+  if (cp !== G.players[G.currentPlayer] || cp.ai) return false;
+  if (cp.hand.length >= 3) return false;
+  if (cp.hand.length === 0) return true; // 強制
+  if (G.awaitingEndTurn) return false;
+  if (G.turn) {
+    if (G.turn.swapsUsed > 0) return false;
+    if (G.turn.pushed) return false;
+    if ((G.turn.questsCompleted || 0) > 0) return false;
+  }
+  if (cp.characterActiveUsed) return false;
+  if (cp.eoPassiveUsedThisTurn) return false;
+  return true;
+}
+
+async function doStardust(cp) {
+  const forced = cp.hand.length === 0;
+  log(`💫 ${cp.name} 宣告「星塵凝聚」${forced ? '（強制）' : ''}，跳過本回合，補牌至 5 張。`, 'system');
+  while (cp.hand.length < 5) {
+    const d = drawN(G, 1);
+    if (!d.length) break;
+    cp.hand.push(d[0]);
+  }
+  if (!G.turn) initTurnState();
+  await endTurn();
+}
+
+// ========== 16. 互動：推牌 ==========
+function canPushNow() {
+  if (!G || G.phase !== 'playing') return false;
+  const cp = G.players[G.currentPlayer];
+  if (cp.ai || UI.awaiting) return false;
+  if (UI.selectedHand == null && !(UI.awaiting && UI.awaiting.type === 'meteorAbilityPush')) return false;
+  if (G.turn && G.turn.pushed) return false;
+  return true;
+}
+
+function canDoSwap() {
+  if (!G || G.phase !== 'playing') return false;
+  const cp = G.players[G.currentPlayer];
+  if (cp.ai || UI.awaiting || UI.selectedHand != null) return false;
+  if (!G.turn) return true;
+  if ((G.turn.swapsUsed || 0) >= 1) return false; // 每回合只能棄牌換牌 1 次
+  if (cp.character === 'ryk') {
+    // 瑞克棄 2 換 2：需手牌 ≥ 2 且預備區或牌庫有牌
+    return cp.hand.length >= 2 && ((G.reserve && G.reserve.length > 0) || G.deck.length > 0);
+  }
+  return cp.hand.length > 0 && G.reserve && G.reserve.length > 0;
+}
+
+function onHandCardClick(idx) {
+  if (G.phase !== 'playing') return;
+  const cp = G.players[G.currentPlayer];
+  if (cp.ai) return;
+  if (UI.awaiting) {
+    return; // 能力進行中，手牌點擊無效
+  }
+  if (!G.turn) initTurnState();
+  UI.selectedHand = UI.selectedHand === idx ? null : idx;
+  render();
+}
+
+async function onPushClick(grid, dir, idx) {
+  if (UI.awaiting && UI.awaiting.type === 'cometAbilityPush') {
+    await UI.awaiting.onPush(grid, dir, idx);
+    return;
+  }
+  if (!canPushNow()) return;
+  const cp = G.players[G.currentPlayer];
+  const card = cp.hand.splice(UI.selectedHand, 1)[0];
+  UI.selectedHand = null;
+  if (!G.turn) initTurnState();
+  G.turn.pushed = true;
+  const gridName = grid === G.centralGrid ? '中央星陣' : '個人星陣';
+  log(`${cp.name} 將 ${cardLabel(card)} 推入${gridName}（${dirName(dir)} 第 ${idx + 1} ${dir === 'down' || dir === 'up' ? '列' : '行'}）。`);
+  const pushedOut = pushIntoGrid3x3(grid, card, dir, idx);
+  // 推入中央星陣後詢問是否放標記
+  if (grid === G.centralGrid) {
+    render();
+    await askPlaceMarker(cp, dir, idx);
+  }
+  render();
+  await delay(200);
+  await handlePushedOut(pushedOut, cp, grid);
+  await resolveCascades(grid, cp);
+  if (G.phase === 'game-over') return;
+  G.awaitingEndTurn = true;
+  UI.selectedHand = null;
+  log(`${cp.name}：可結算任務後按「結束回合」。`, 'system');
+  render();
+}
+
+function dirName(d) {
+  return { down: '上方', up: '下方', right: '左方', left: '右方' }[d];
+}
+
+// ========== 17. 角色主動能力 ==========
+async function triggerCharacterActive(p) {
+  if (!p.character || p.characterActiveUsed) return;
+  const ch = CHARACTERS[p.character];
+  const ok = await new Promise(r => {
+    openModal({
+      title: `發動「${ch.activeName}」？`,
+      bodyHtml: `<p>${ch.activeDesc}</p><p class="small muted">每局限用一次。</p>`,
+      actions: [
+        { label: '取消', onclick: () => { closeModal(); r(false); } },
+        { label: '發動', primary: true, onclick: () => { closeModal(); r(true); } }
+      ]
+    });
+  });
+  if (!ok) return;
+  p.characterActiveUsed = true;
+  if (!G.turn) initTurnState();
+
+  if (p.character === 'kali') {
+    G.turn.kaliDouble = true;
+    log(`🔥 卡莉「引爆」：本回合消除得分 ×2！`, 'system');
+  } else if (p.character === 'eo') {
+    // 從預備區自由補牌（在下次補牌時生效）
+    G.turn.eoGuide = true;
+    log(`❄ 艾歐「引導」：本回合補牌時可從預備區選牌。`, 'system');
+  } else if (p.character === 'siel') {
+    // 席爾「虛空召喚」：從棄牌堆取任意 1 張，推入個人星陣任意邊緣
+    if (G.discard.length === 0) { log(`席爾「虛空召喚」：棄牌堆為空。`, 'system'); p.characterActiveUsed = false; }
+    else {
+      let chosen = null;
+      await new Promise(resolve => {
+        openModal({
+          title: '席爾虛空召喚：從棄牌堆選 1 張',
+          body: () => {
+            const wrap = el('div', { class: 'pick-grid' });
+            G.discard.forEach((card, i) => {
+              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                onclick: () => {
+                  chosen = G.discard.splice(i, 1)[0];
+                  closeModal(); resolve();
+                }
+              });
+              div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+              wrap.appendChild(div);
+            });
+            return wrap;
+          },
+          actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
+        });
+      });
+      if (chosen) {
+        // 步驟 1：選擇推入哪個星陣（個人 or 中央）
+        let targetGrid = null, targetGridLabel = '';
+        await new Promise(resolve => {
+          openModal({
+            title: '席爾虛空召喚：選擇目標星陣',
+            body: () => {
+              const wrap = el('div', { style: 'display:flex;gap:12px' });
+              const btnP = el('button', { style: 'flex:1;padding:14px;cursor:pointer', onclick: () => {
+                targetGrid = p.personalGrid; targetGridLabel = '個人'; closeModal(); resolve();
+              }});
+              btnP.textContent = '🔲 個人星陣';
+              const btnC = el('button', { style: 'flex:1;padding:14px;cursor:pointer', onclick: () => {
+                targetGrid = G.centralGrid; targetGridLabel = '中央'; closeModal(); resolve();
+              }});
+              btnC.textContent = '🌐 中央星陣';
+              wrap.appendChild(btnP); wrap.appendChild(btnC);
+              return wrap;
+            },
+            actions: [{ label: '取消', onclick: () => { G.discard.push(chosen); closeModal(); resolve(); } }]
+          });
+        });
+        if (!targetGrid) return; // 取消
+
+        // 步驟 2：選擇推入方向和位置
+        await new Promise(resolve => {
+          openModal({
+            title: `席爾虛空召喚：推入${targetGridLabel}星陣，選擇方向`,
+            body: () => {
+              const wrap = el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:8px' });
+              const dirs = [
+                { dir: 'down', label: '從上推入（選列 0-2）' },
+                { dir: 'up', label: '從下推入（選列 0-2）' },
+                { dir: 'right', label: '從左推入（選行 0-2）' },
+                { dir: 'left', label: '從右推入（選行 0-2）' },
+              ];
+              dirs.forEach(({ dir, label }) => {
+                const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
+                  closeModal();
+                  openModal({
+                    title: `席爾虛空召喚：選擇${dir === 'down' || dir === 'up' ? '列' : '行'}（0-2）`,
+                    body: () => {
+                      const w = el('div', { style: 'display:flex;gap:8px' });
+                      [0, 1, 2].forEach(idx => {
+                        const b = el('button', { style: 'flex:1;padding:12px;cursor:pointer;font-size:1.2em', onclick: async () => {
+                          closeModal();
+                          const pushed = pushIntoGrid3x3(targetGrid, chosen, dir, idx);
+                          log(`✨ 席爾「虛空召喚」：將牌推入${targetGridLabel}星陣。`, 'system');
+                          if (pushed) await handlePushedOut(pushed, p, targetGrid);
+                          await resolveCascades(targetGrid, p);
+                          render(); resolve();
+                        }});
+                        b.textContent = String(idx);
+                        w.appendChild(b);
+                      });
+                      return w;
+                    },
+                    actions: []
+                  });
+                }});
+                btn.textContent = label;
+                wrap.appendChild(btn);
+              });
+              return wrap;
+            },
+            actions: [{ label: '取消', onclick: () => { G.discard.push(chosen); closeModal(); resolve(); } }]
+          });
+        });
+      }
+    }
+  } else if (p.character === 'luna') {
+    // 露娜「輻射爆」：移除所有觀測任務，重抽（移除數+1）張
+    const removedCount = p.quests.length;
+    if (removedCount === 0) {
+      log(`🌟 露娜「輻射爆」：無任務可移除。`, 'system');
+      p.characterActiveUsed = false;
+    } else {
+      // 將任務底牌還入棄牌堆（只還卡牌本身，不是任務物件）
+      p.quests.forEach(q => { if (q.card) G.discard.push(q.card); });
+      p.quests = [];
+      const drawCount = removedCount + 1;
+      const newQuests = [];
+      // v4：直接從牌庫抽牌，牌的能量就是新任務能量
+      for (let i = 0; i < drawCount; i++) {
+        const drawn = drawN(G, 1);
+        if (!drawn.length) break;
+        const card = drawn[0];
+        newQuests.push({ energy: card.energy, card });
+      }
+      p.quests = newQuests.slice(0, effectiveQuestLimit(p));
+      log(`🌟 露娜「輻射爆」：移除 ${removedCount} 個任務，重抽 ${p.quests.length} 個新任務！`, 'score');
+    }
+  } else if (p.character === 'ryk') {
+    // 瑞克「置換」：抽 1 張加入手牌，並將手牌任 1 張與星陣中任 1 張互換
+    const d = drawN(G, 1);
+    if (d.length) { p.hand.push(d[0]); log(`瑞克「置換」：抽 1 張牌加入手牌。`, 'system'); }
+    if (p.hand.length === 0) { render(); return; }
+    // 選手牌
+    let handCard = null; let handIdx = -1;
+    await new Promise(resolve => {
+      openModal({
+        title: '瑞克置換：選擇手牌中要互換的牌',
+        body: () => {
+          const wrap = el('div', { class: 'pick-grid' });
+          p.hand.forEach((card, i) => {
+            const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+            const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+              onclick: () => { handCard = card; handIdx = i; closeModal(); resolve(); }
+            });
+            div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+            wrap.appendChild(div);
+          });
+          return wrap;
+        },
+        actions: [{ label: '跳過互換', onclick: () => { closeModal(); resolve(); } }]
+      });
+    });
+    if (handCard !== null) {
+      // 選星陣格子（個人 or 中央）
+      log(`瑞克「置換」：請點選星陣中要互換的格子。`, 'system');
+      UI.awaiting = {
+        type: 'rykSwapGrid',
+        hint: '瑞克「置換」：點選星陣中要互換的格子。',
+        handCard, handIdx,
+        onPickGrid: async (grid, r, c) => {
+          UI.awaiting = null;
+          if (grid[r][c] === null) { render(); return; }
+          const gridCard = grid[r][c];
+          p.hand[handIdx] = gridCard;
+          grid[r][c] = handCard;
+          log(`瑞克「置換」：手牌 ${cardLabel(handCard)} ↔ 星陣 ${cardLabel(gridCard)}。`, 'system');
+          await resolveCascades(grid, p);
+          render();
+        }
+      };
+    }
+  } else if (p.character === 'tavi') {
+    // 塔薇「疊加」：從棄牌堆/牌庫/預備區合計取 3 張，其中 2 張可放置為任務
+    const taken = [];
+    for (let i = 0; i < 3; i++) {
+      await new Promise(resolve => {
+        const opts = [];
+        if (G.discard.length > 0) opts.push('discard');
+        if (G.deck.length > 0) opts.push('deck');
+        if (G.reserve && G.reserve.length > 0) opts.push('reserve');
+        if (opts.length === 0) { resolve(); return; }
+        openModal({
+          title: `塔薇疊加：取第 ${i+1} 張（共 3 張），選擇來源`,
+          body: () => {
+            const wrap = el('div', { style: 'display:flex;flex-direction:column;gap:10px' });
+            if (opts.includes('discard')) {
+              const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
+                closeModal();
+                openModal({
+                  title: '從棄牌堆選 1 張',
+                  body: () => {
+                    const w = el('div', { class: 'pick-grid' });
+                    G.discard.forEach((c, di) => {
+                      const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
+                      const d = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                        onclick: () => { taken.push(G.discard.splice(di, 1)[0]); closeModal(); resolve(); }
+                      });
+                      d.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+                      w.appendChild(d);
+                    });
+                    return w;
+                  }, actions: []
+                });
+              }});
+              btn.textContent = '從棄牌堆取';
+              wrap.appendChild(btn);
+            }
+            if (opts.includes('deck')) {
+              const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
+                const d = drawN(G, 1); if (d.length) taken.push(d[0]);
+                closeModal(); resolve();
+              }});
+              btn.textContent = '從牌庫頂取';
+              wrap.appendChild(btn);
+            }
+            if (opts.includes('reserve')) {
+              const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
+                closeModal();
+                openModal({
+                  title: '從預備區選 1 張',
+                  body: () => {
+                    const w = el('div', { class: 'pick-grid' });
+                    G.reserve.forEach((c, ri) => {
+                      const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
+                      const d = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+                        onclick: () => { taken.push(G.reserve.splice(ri, 1)[0]); refillReserve(); closeModal(); resolve(); }
+                      });
+                      d.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+                      w.appendChild(d);
+                    });
+                    return w;
+                  }, actions: []
+                });
+              }});
+              btn.textContent = '從預備區取';
+              wrap.appendChild(btn);
+            }
+            return wrap;
+          },
+          actions: []
+        });
+      });
+    }
+    // 將取到的牌：最多 2 張設為任務，其餘加入手牌
+    log(`✨ 塔薇「疊加」：取得 ${taken.length} 張牌。`, 'system');
+    let questsPlaced = 0;
+    for (const card of taken) {
+      const canSetQuest = questsPlaced < 2 && p.quests.length < effectiveQuestLimit(p);
+      if (!canSetQuest) { p.hand.push(card); continue; }
+      const setAsQuest = await new Promise(resolve => {
+        const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+        openModal({
+          title: '塔薇疊加：加入手牌還是設為任務？',
+          bodyHtml: `<div style="text-align:center"><div style="font-size:2em">${shapeSVG(card.shape, e.color, 48)}</div><div>${e.name} ${s.name}</div></div>`,
+          actions: [
+            { label: '加入手牌', onclick: () => { closeModal(); resolve(false); } },
+            { label: '設為觀測任務', primary: true, onclick: () => { closeModal(); resolve(true); } }
+          ]
+        });
+      });
+      if (setAsQuest) { p.quests.push({ energy: card.energy, card }); questsPlaced++; }
+      else { p.hand.push(card); }
+    }
+  }
+  render();
+}
+
+async function eoPassiveCycle(cp) {
+  if (cp.eoPassiveUsedThisTurn || !G.reserve || G.reserve.length === 0) return;
+  const state = { selected: [] };
+  return new Promise(resolve => {
+    const update = () => {
+      document.querySelectorAll('.modal-bg').forEach(n => n.remove());
+      openModal({
+        title: `艾歐被動：已選 ${state.selected.length} 張（可選 1～3）`,
+        body: () => {
+          const wrap = el('div', { class: 'pick-grid' });
+          G.reserve.forEach((card, i) => {
+            const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+            const picked = state.selected.includes(i);
+            const div = el('div', { class: 'hand-card' + (picked ? ' selected' : ''), style: `--cc: ${e.color}; cursor:pointer;`,
+              onclick: () => {
+                if (picked) state.selected = state.selected.filter(x => x !== i);
+                else if (state.selected.length < 3) state.selected.push(i);
+                update();
+              }
+            });
+            div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+            wrap.appendChild(div);
+          });
+          return wrap;
+        },
+        actions: [
+          { label: '取消', onclick: () => { closeModal(); resolve(); } },
+          { label: `循環 ${state.selected.length} 張`, primary: true, onclick: () => {
+            const n = state.selected.length;
+            if (n === 0) { closeModal(); resolve(); return; }
+            const removed = state.selected.sort((a, b) => b - a).map(i => G.reserve.splice(i, 1)[0]);
+            removed.forEach(c => G.discard.push(c));
+            const drawn = drawN(G, n);
+            drawn.forEach(c => G.reserve.push(c));
+            cp.eoPassiveUsedThisTurn = true;
+            log(`❄ 艾歐被動：循環 ${n} 張預備區牌。`, 'system');
+            closeModal(); render(); resolve();
+          }}
+        ]
+      });
+    };
+    update();
+  });
+}
+
+
+// ========== 18. UI 渲染 ==========
+const $ = (sel, root = document) => root.querySelector(sel);
+function el(tag, attrs = {}, ...children) {
+  const n = document.createElement(tag);
+  for (const k in attrs) {
+    if (k === 'class') n.className = attrs[k];
+    else if (k === 'style') n.style.cssText = attrs[k];
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+    else if (k === 'html') n.innerHTML = attrs[k];
+    else n.setAttribute(k, attrs[k]);
+  }
+  for (const c of children) {
+    if (c == null || c === false) continue;
+    if (Array.isArray(c)) c.forEach(x => n.appendChild(typeof x === 'string' ? document.createTextNode(x) : x));
+    else n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  }
+  return n;
+}
+
+function render() {
+  if (!G) return renderMenu();
+  if (G.phase === 'game-over') return renderGameOver();
+  if (G.phase === 'playing' || G.phase === 'setup-pick' || G.phase === 'character-pick' || G.phase === 'setup') renderGame();
+}
+
+function renderMenu() {
+  document.getElementById('app').innerHTML = '';
+  document.getElementById('app').appendChild(
+    el('div', { class: 'menu' },
+      el('div', { class: 'title' }, '星 移'),
+      el('div', { class: 'subtitle' }, 'CELESTIAL  SHIFT'),
+      el('div', { class: 'tagline' }, '在宇宙的裂縫之間，漂浮著無數充滿能量的星體。你是一位 Void Walker——穿行於星際虛空的能量操控者。將相同能量排列成特定的星象形狀，觸發共鳴崩塌，收割宇宙的力量。第一位累積 66 點能量，將成為這片星域的主宰。'),
+      el('div', { class: 'panel' },
+        el('h3', {}, '遊戲設置'),
+        el('label', {}, el('span', {}, '模式'),
+          el('select', { id: 'modeSel' },
+            el('option', { value: 'hotseat' }, '本地多人 (hot-seat)'),
+            el('option', { value: 'ai' }, '單人 vs AI'),
+          )
+        ),
+        el('label', {}, el('span', {}, '玩家數'),
+          el('select', { id: 'countSel' },
+            el('option', { value: 2 }, '2 人'),
+            el('option', { value: 3 }, '3 人'),
+            el('option', { value: 4 }, '4 人'),
+          )
+        ),
+        el('label', {}, el('span', {}, '你的名字'),
+          el('input', { type: 'text', id: 'nameInp', value: 'Walker' })
+        ),
+        el('label', {}, el('span', {}, 'Void Walker 模組'),
+          el('select', { id: 'vwSel' },
+            el('option', { value: 'on' }, '開啟（推薦）'),
+            el('option', { value: 'off' }, '關閉（基礎版）'),
+          )
+        ),
+        el('div', { class: 'center' },
+          el('button', { class: 'start-btn', onclick: () => {
+            const mode = $('#modeSel').value;
+            const count = parseInt($('#countSel').value);
+            const myName = $('#nameInp').value || 'Walker';
+            const voidWalker = $('#vwSel').value === 'on';
+            const players = [];
+            if (mode === 'ai') {
+              players.push({ name: myName, ai: false });
+              for (let i = 1; i < count; i++) players.push({ name: `AI ${i}`, ai: true });
+            } else {
+              players.push({ name: myName, ai: false });
+              for (let i = 1; i < count; i++) players.push({ name: `玩家 ${i + 1}`, ai: false });
+            }
+            startGame({ mode, players, voidWalker });
+          }}, '本地開始'),
+          el('br'),
+          el('button', { class: 'start-btn', style: 'margin-top:10px;background:linear-gradient(135deg,#2a6a9a,#6a3aaa);', onclick: renderOnlineMenu }, '🌐 連線對戰'),
+          el('br'),
+          el('button', { class: 'rules-btn', onclick: showRules }, '規則速覽')
+        )
+      )
+    )
+  );
+}
+
+function showRules() {
+  openModal({
+    title: '規則速覽（V4）',
+    bodyHtml: `
+      <h3>目標</h3>
+      <p>累積得分達 <b>66</b> 分立即獲勝。</p>
+      <h3>星陣結構</h3>
+      <p>每位玩家有一個 <b>3×3 個人星陣</b>，另有一個所有人共用的 <b>3×3 中央星陣</b>。</p>
+      <h3>中央星陣標記系統</h3>
+      <p>推牌進入<b>中央星陣</b>時，可選擇在該格放下你的玩家標記（彩色圓點）。<br>
+         中央星陣發生消除時，<b>消除格上每個你的標記額外得 +2 分</b>（與消除分數分開計算）。<br>
+         標記隨牌消失——牌被推出，標記也跟著消失。</p>
+      <h3>每回合流程</h3>
+      <p>1. 可發動 Void Walker 主動能力（每局限 1 次）。<br>
+         2. 可選棄 1 換 1（瑞克：2 換 2）。<br>
+         3. 回合中任意時間可宣告已達成的任務。<br>
+         4. 從手牌選 1 張，推入個人或中央星陣任一邊緣。<br>
+         5. 被推出的牌：收入手牌 / 發動星際能力 / 設為觀測任務。<br>
+         6. 結算消除形狀，補牌（補入後立即觸發消除者丟棄重補）。<br>
+         7. 從預備區選 1 張加入手牌，補 1 張進預備區。</p>
+      <h3>星塵凝聚</h3>
+      <p>手牌不足 3 張時，可在插牌前宣告「星塵凝聚」，跳過本回合補至 5 張。<b>手牌為 0 時強制觸發</b>。</p>
+      <h3>消除形狀（同能量顏色）</h3>
+      <table>
+        <tr><th>消除</th><th>形狀</th><th>得分</th></tr>
+        <tr><td>三消</td><td>整行或整列（3連）</td><td>+3</td></tr>
+        <tr><td>四消</td><td>2×2 正方</td><td>+5</td></tr>
+        <tr><td>五消</td><td>L形 / T形 / +形</td><td>+8</td></tr>
+        <tr><td>六消</td><td>2×3 或 3×2 長方</td><td>+14</td></tr>
+        <tr><td>七消</td><td>U 形（可旋轉）</td><td>+24</td></tr>
+        <tr><td>八消</td><td>3×3 外圈（一圈）</td><td>+39</td></tr>
+        <tr><td>九消</td><td>3×3 全滿</td><td>+66</td></tr>
+      </table>
+      <h3>星際能力（依星體形狀）</h3>
+      <table>
+        <tr><th>星體</th><th>效果</th></tr>
+        <tr><td>隕石</td><td>代替：移除星陣 1 張，手牌 1 張放置補入</td></tr>
+        <tr><td>彗星</td><td>插入：從手牌推入星陣，推出的牌直接棄入棄牌堆</td></tr>
+        <tr><td>黑洞</td><td>互換：中央星陣 1 張和個人星陣 1 張互換位置</td></tr>
+      </table>
+      <h3>觀測任務（依能量，各 +9 分）</h3>
+      <table>
+        <tr><th>能量</th><th>條件</th></tr>
+        <tr><td>火焰 Pyro</td><td>同一回合觸發 2 次消除</td></tr>
+        <tr><td>冰晶 Cryo</td><td>任一星陣中有 4 張同色牌</td></tr>
+        <tr><td>暗物質 Dark</td><td>手牌中有 3 張相同星體的牌</td></tr>
+        <tr><td>恆星 Solar</td><td>單回合總消除得 6 分以上</td></tr>
+        <tr><td>反物質 Anti</td><td>單次消除 4 張（四消以上）</td></tr>
+        <tr><td>量子 Quantum</td><td>任一星陣中同時有 6 種不同能量</td></tr>
+      </table>
+      <h3>手牌規則</h3>
+      <p>手牌上限 6 張（席爾 +3 → 9 張）、任務上限 3 個（席爾 +3 → 6 個）。超過上限時回合結束前需棄牌。</p>
+    `,
+    actions: [{ label: '關閉', primary: true }]
+  });
+}
+
+function renderGame() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  const cp = G.players[G.currentPlayer];
+  app.appendChild(
+    el('div', {},
+      el('div', { class: 'top-bar' },
+        el('div', { class: 'brand' }, '星移 · CELESTIAL SHIFT V4'),
+        el('div', { style: 'flex:1; text-align:center;' },
+          el('span', { style: 'background:rgba(255,214,168,0.15);color:#ffd6a8;padding:6px 16px;border-radius:20px;border:1px solid rgba(255,214,168,0.3);letter-spacing:2px;font-weight:600;' },
+            `第 ${G.round} 輪 · ${cp?.name || ''} 的回合`
+          ),
+          G.gameEndTriggered ? el('span', { style: 'display:block;font-size:12px;color:#ffb060;margin-top:4px;letter-spacing:1px;' }, '🔔 有人已達 66 分，完成本輪後結算！') : null
+        ),
+        el('div', { class: 'actions' },
+          el('button', { onclick: showRules }, '規則'),
+          isOnlineMode() && myPlayerIdx === 0 ? el('button', { onclick: async () => { await pushState(); }, title: '強制推送目前狀態給其他玩家', style: 'font-size:11px;padding:4px 8px;' }, '📡 同步') : null,
+          el('button', { onclick: () => { if (confirm('返回主選單將遺失進度，確定？')) { G = null; render(); } } }, '回主選單'),
+        )
+      ),
+      G.phase === 'playing' ? renderInstructions() : null,
+      el('div', { class: 'game-layout' },
+        el('div', { class: 'center-area', style: 'display:flex;flex-direction:column;align-items:center;gap:16px;' },
+          renderGridsRow(),
+          el('div', { class: 'reserve-discard-row' },
+            renderReserve(),
+            renderDiscard()
+          ),
+          renderHand(),
+          renderLog()
+        ),
+        el('div', {}, renderPlayersPanel(), renderHelpTable())
+      )
+    )
+  );
+  if (UI.modal) renderModal(UI.modal);
+}
+
+function renderInstructions() {
+  if (UI.awaiting) {
+    return el('div', { class: 'instructions' }, UI.awaiting.hint || '請操作…');
+  }
+  const cp = G.players[G.currentPlayer];
+  if (cp.ai) return el('div', { class: 'instructions' }, `${cp.name} 思考中…`);
+  if (G.awaitingEndTurn) {
+    const hasCompletable = cp.quests.some(q => {
+      const Q = QUESTS[q.energy];
+      return Q && Q.check(G, cp, G.turn || {});
+    });
+    return el('div', { class: 'instructions' },
+      `✨ 消除已結算。${hasCompletable ? '可點擊任務卡結算。' : ''}完成後請點「結束回合」。`
+    );
+  }
+  if (UI.selectedHand != null) {
+    return el('div', { class: 'instructions' }, `已選手牌：${cardLabel(cp.hand[UI.selectedHand])}。點擊個人或中央星陣的箭頭推入。再點手牌可取消。`);
+  }
+  return el('div', { class: 'instructions' },
+    `${cp.name} 的回合。選手牌後推入星陣，或使用棄牌換牌、星塵凝聚、角色技能。`
+  );
+}
+
+// ========== RENDER: 星陣格子（3×3 + 外圈箭頭，共5×5）==========
+function renderGridsRow() {
+  const cp = G.players[G.currentPlayer];
+  return el('div', { class: 'grids-row' },
+    el('div', { class: 'grid-section' },
+      el('div', { class: 'grid-section-label' }, `${cp.name} 的個人星陣`),
+      renderGrid(cp.personalGrid, 'personal', cp)
+    ),
+    el('div', { class: 'grid-section' },
+      el('div', { class: 'grid-section-label', style: 'color:#ffd6a8;' }, '共用中央星陣'),
+      renderGrid(G.centralGrid, 'central', cp)
+    )
+  );
+}
+
+function renderGrid(grid, gridType, cp) {
+  const gridId = gridType === 'central' ? 'central' : `personal-${G.currentPlayer}`;
+  const targetGrid = gridType === 'central' ? G.centralGrid : cp.personalGrid;
+  const canPush = canPushNow() || (UI.awaiting && UI.awaiting.type === 'cometAbilityPush');
+  const frame = el('div', { class: 'grid-frame' + (gridType === 'central' ? ' central-frame' : '') });
+  const gridEl = el('div', { class: 'grid', 'data-grid-id': gridId });
+
+  // Build 5×5: row 0 = top arrows, rows 1-3 = cards + side arrows, row 4 = bottom arrows
+  for (let row5 = 0; row5 < 5; row5++) {
+    for (let col5 = 0; col5 < 5; col5++) {
+      const isTopRow = row5 === 0, isBotRow = row5 === 4;
+      const isLeftCol = col5 === 0, isRightCol = col5 === 4;
+      const gr = row5 - 1, gc = col5 - 1; // inner grid coords
+
+      if (isTopRow && isLeftCol || isTopRow && isRightCol || isBotRow && isLeftCol || isBotRow && isRightCol) {
+        // Corners: blank
+        gridEl.appendChild(el('div', { class: 'grid-corner' }));
+      } else if (isTopRow) {
+        const idx = col5 - 1;
+        const arrow = el('div', { class: 'grid-arrow', title: `從上推入列${idx}` }, '↓');
+        if (canPush) {
+          arrow.classList.add('active');
+          arrow.addEventListener('click', () => onPushClick(targetGrid, 'down', idx));
+        }
+        gridEl.appendChild(arrow);
+      } else if (isBotRow) {
+        const idx = col5 - 1;
+        const arrow = el('div', { class: 'grid-arrow', title: `從下推入列${idx}` }, '↑');
+        if (canPush) {
+          arrow.classList.add('active');
+          arrow.addEventListener('click', () => onPushClick(targetGrid, 'up', idx));
+        }
+        gridEl.appendChild(arrow);
+      } else if (isLeftCol) {
+        const idx = row5 - 1;
+        const arrow = el('div', { class: 'grid-arrow', title: `從左推入行${idx}` }, '→');
+        if (canPush) {
+          arrow.classList.add('active');
+          arrow.addEventListener('click', () => onPushClick(targetGrid, 'right', idx));
+        }
+        gridEl.appendChild(arrow);
+      } else if (isRightCol) {
+        const idx = row5 - 1;
+        const arrow = el('div', { class: 'grid-arrow', title: `從右推入行${idx}` }, '←');
+        if (canPush) {
+          arrow.classList.add('active');
+          arrow.addEventListener('click', () => onPushClick(targetGrid, 'left', idx));
+        }
+        gridEl.appendChild(arrow);
+      } else {
+        // Inner card cell
+        const card = grid[gr][gc];
+        if (card) {
+          gridEl.appendChild(renderStarCard(card, targetGrid, gr, gc));
+        } else {
+          gridEl.appendChild(el('div', { class: 'grid-cell empty' }));
+        }
+      }
+    }
+  }
+  frame.appendChild(gridEl);
+  return frame;
+}
+
+function renderStarCard(card, targetGrid, gr, gc) {
+  const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+  const div = el('div', { class: 'star-card', style: `--cc: ${e.color}` });
+  // 中央星陣標記徽章
+  let markerBadge = '';
+  if (targetGrid === G.centralGrid && G.centralMarkers[gr][gc] !== null && G.centralMarkers[gr][gc] !== undefined) {
+    const ownerIdx = G.centralMarkers[gr][gc];
+    const ownerColor = G.players[ownerIdx] ? G.players[ownerIdx].color : '#fff';
+    markerBadge = `<div style="position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:${ownerColor};border:1.5px solid rgba(0,0,0,0.5);z-index:3;" title="${G.players[ownerIdx]?.name} 的標記"></div>`;
+  }
+  div.innerHTML = `${markerBadge}<div class="icon">${shapeSVG(card.shape, e.color, 28)}</div>
+                   <div class="label">${e.en.substring(0,4).toUpperCase()}</div>
+                   <div class="stars">${'★'.repeat(s.stars)}</div>`;
+  div.style.position = 'relative';
+  // 隕石/黑洞/瑞克 能力：點星陣格
+  if (UI.awaiting) {
+    const awt = UI.awaiting.type;
+    const isCentral = targetGrid === G.centralGrid;
+    if (awt === 'meteorAbilityPickGrid' && card) {
+      // 隕石（代替）：任意格
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    } else if (awt === 'blackAbilityPickCentral' && isCentral && card) {
+      // 黑洞第一步：只能選中央
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    } else if (awt === 'blackAbilityPickPersonal' && !isCentral && card) {
+      // 黑洞第二步：只能選個人
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    } else if (awt === 'rykSwapGrid' && card) {
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    }
+  }
+  return div;
+}
+
+// ========== RENDER: 預備區 & 棄牌堆 ==========
+function renderReserve() {
+  return el('div', { class: 'hand-area' },
+    el('h3', {}, `預備區 (${G.reserve ? G.reserve.length : 0}/3) · 牌庫剩 ${G.deck.length}`),
+    el('div', { class: 'hand' },
+      ...(G.reserve || []).map((card) => {
+        const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+        const div = el('div', { class: 'hand-card reserve-card', style: `--cc: ${e.color}` });
+        div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 36)}</div>
+                         <div class="label">${e.en.toUpperCase()}</div>
+                         <div class="shape-label">${s.name}</div>`;
+        return div;
+      })
+    )
+  );
+}
+
+function renderDiscard() {
+  const top = G.discard.length > 0 ? G.discard[G.discard.length - 1] : null;
+  return el('div', { class: 'hand-area' },
+    el('h3', {}, `棄牌堆 (${G.discard.length})`),
+    el('div', { class: 'hand' },
+      top ? (() => {
+        const e = ENERGY_BY[top.energy], s = SHAPE_BY[top.shape];
+        const div = el('div', { class: 'hand-card', style: `--cc: ${e.color};opacity:0.6` });
+        div.innerHTML = `<div class="icon">${shapeSVG(top.shape, e.color, 36)}</div>
+                         <div class="label">${e.en.toUpperCase()}</div>
+                         <div class="shape-label">${s.name}</div>`;
+        return div;
+      })() : el('div', { style: 'color:var(--col-muted);padding:8px' }, '（空）')
+    )
+  );
+}
+
+// ========== RENDER: 手牌 & 動作 ==========
+function renderHand() {
+  const cp = G.players[G.currentPlayer];
+  if (cp.ai) return el('div', { class: 'hand-area' }, el('p', { class: 'muted' }, 'AI 回合中…'));
+  // 連線模式：不是自己的回合時隱藏對方手牌內容
+  if (isOnlineMode() && G.currentPlayer !== myPlayerIdx) {
+    const hiddenCards = el('div', { class: 'hand' });
+    cp.hand.forEach(() => {
+      const back = el('div', { class: 'hand-card', style: 'cursor:default;background:rgba(30,40,75,0.7);border-color:rgba(120,150,255,0.3);' });
+      back.innerHTML = `<div class="icon"><svg width="36" height="36" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="rgba(80,100,180,0.3)" stroke="rgba(120,150,255,0.4)" stroke-width="2"/><text x="16" y="21" text-anchor="middle" font-size="16" fill="rgba(180,200,255,0.5)">?</text></svg></div>`;
+      hiddenCards.appendChild(back);
+    });
+    return el('div', { class: 'hand-area' },
+      el('h3', {}, `${cp.name} 的手牌（${cp.hand.length} 張）`),
+      hiddenCards,
+      el('div', { class: 'quests-row' },
+        el('span', {}, `任務 (${cp.quests.length}/${effectiveQuestLimit(cp)}): `),
+        ...cp.quests.map(q => {
+          const e = ENERGY_BY[q.energy];
+          const btn = el('div', { class: 'quest-card', style: `--cc: ${e.color}` });
+          btn.innerHTML = `<span style="color:${e.color}">${e.name}</span>`;
+          return btn;
+        })
+      )
+    );
+  }
+  return el('div', { class: 'hand-area' },
+    el('h3', {}, `手牌 (${cp.hand.length}/${effectiveHandLimit(cp)})`),
+    el('div', { class: 'hand' },
+      ...cp.hand.map((card, i) => {
+        const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+        const isSelected = UI.selectedHand === i;
+        const div = el('div', {
+          class: 'hand-card' + (isSelected ? ' selected' : ''),
+          style: `--cc: ${e.color}; cursor: pointer;`,
+          onclick: () => onHandCardClick(i)
+        });
+        div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 36)}</div>
+                         <div class="label">${e.en.toUpperCase()}</div>
+                         <div class="shape-label">${s.name}</div>`;
+        return div;
+      })
+    ),
+    el('div', { class: 'quests-row' },
+      el('span', {}, `任務 (${cp.quests.length}/${effectiveQuestLimit(cp)}): `),
+      ...cp.quests.map((q, i) => {
+        const e = ENERGY_BY[q.energy];
+        const Q = QUESTS[q.energy];
+        const completable = Q && Q.check(G, cp, G.turn || {});
+        const btn = el('div', {
+          class: 'quest-card' + (completable ? ' completable' : ''),
+          style: `--cc: ${e.color}; cursor: ${completable ? 'pointer' : 'default'}`,
+          title: Q ? Q.desc : q.energy,
+          onclick: completable ? () => completeQuest(cp, i).then(() => render()) : null
+        });
+        btn.innerHTML = `<span style="color:${e.color}">${e.name}</span>${completable ? ' ✓' : ''}`;
+        return btn;
+      })
+    ),
+    renderActions(cp)
+  );
+}
+
+function renderActions(cp) {
+  const isCurrentPlayer = G.players[G.currentPlayer] === cp && !cp.ai;
+  if (!isCurrentPlayer) return el('div');
+  if (UI.awaiting) return el('div'); // 能力選擇中，隱藏所有動作按鈕防止衝突
+  const actions = el('div', { class: 'actions', style: 'margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;' });
+
+  // 結束回合
+  if (G.awaitingEndTurn || (G.turn && G.turn.pushed)) {
+    actions.appendChild(el('button', {
+      class: 'btn-primary',
+      onclick: () => endTurn().then(() => render())
+    }, '結束回合'));
+  }
+
+  // 棄牌換牌
+  const minHandForSwap = cp.character === 'ryk' ? 2 : 1;
+  if (!G.awaitingEndTurn && (!G.turn || G.turn.swapsUsed === 0) && cp.hand.length >= minHandForSwap) {
+    const hasReserve = G.reserve && G.reserve.length > 0;
+    const hasSource = hasReserve || (cp.character === 'ryk' && G.deck.length > 0);
+    if (hasSource) {
+      actions.appendChild(el('button', {
+        onclick: () => beginSwapHand().then(() => render())
+      }, cp.character === 'ryk' ? '棄 2 換 2' : '棄牌換牌'));
+    }
+  }
+
+  // 星塵凝聚
+  if (canDeclareStardust(cp)) {
+    actions.appendChild(el('button', {
+      onclick: () => doStardust(cp)
+    }, '星塵凝聚'));
+  }
+
+  // 艾歐被動：循環預備區
+  if (cp.character === 'eo' && !cp.eoPassiveUsedThisTurn && !cp.ai && G.reserve && G.reserve.length > 0) {
+    if (!G.awaitingEndTurn && !(G.turn && G.turn.pushed)) {
+      actions.appendChild(el('button', {
+        onclick: () => eoPassiveCycle(cp).then(() => render())
+      }, '艾歐被動：循環預備區'));
+    }
+  }
+
+  // 角色主動技能
+  if (cp.character && !cp.characterActiveUsed) {
+    const ch = CHARACTERS[cp.character];
+    actions.appendChild(el('button', {
+      class: 'btn-character',
+      onclick: () => triggerCharacterActive(cp).then(() => render()),
+      title: ch.activeDesc
+    }, `${ch.activeName}（主動）`));
+  }
+
+  return actions;
+}
+
+// ========== RENDER: 遊戲紀錄 ==========
+function renderLog() {
+  const entries = (G.log || []).slice(-12);
+  return el('div', { class: 'log' },
+    ...entries.map(e => el('div', { class: 'log-entry' + (e.type ? ' ' + e.type : '') }, e.text))
+  );
+}
+
+// ========== RENDER: 玩家面板（側欄）==========
+function renderHelpTable() {
+  const panel = el('div', { class: 'players-panel', style: 'margin-top:12px;' });
+  panel.appendChild(el('h3', { style: 'font-size:12px;letter-spacing:2px;color:#a8b5e0;margin-bottom:10px;' }, '⚡ 得分速查'));
+
+  const rows = [
+    ['三消（直/橫線）', '+3'],
+    ['四消（2×2）', '+5'],
+    ['五消（L/T形）', '+8'],
+    ['六消（長方）', '+14'],
+    ['七消（U形）', '+24'],
+    ['八消（外圈）', '+39'],
+    ['九消（全滿）', '+66'],
+    ['中央標記（每個）', '+2'],
+    ['完成任務', '+9'],
+  ];
+
+  const table = el('table', { style: 'width:100%;border-collapse:collapse;font-size:12px;' });
+  rows.forEach(([label, score]) => {
+    const tr = el('tr');
+    const tdLabel = el('td', { style: 'padding:3px 4px;color:#c5d2ff;border-bottom:1px solid rgba(120,150,255,0.1);' }, label);
+    const tdScore = el('td', { style: 'padding:3px 4px;text-align:right;color:#ffd6a8;font-weight:bold;border-bottom:1px solid rgba(120,150,255,0.1);white-space:nowrap;' }, score);
+    tr.appendChild(tdLabel);
+    tr.appendChild(tdScore);
+    table.appendChild(tr);
+  });
+  panel.appendChild(table);
+
+  // 星際能力
+  panel.appendChild(el('h3', { style: 'font-size:12px;letter-spacing:2px;color:#a8b5e0;margin:12px 0 8px;' }, '🌟 星際能力'));
+  const abilities = [
+    ['隕石', '代替：移除格→手牌放入'],
+    ['彗星', '插入：手牌推入→推出棄'],
+    ['黑洞', '互換：中央↔個人星陣'],
+  ];
+  abilities.forEach(([shape, desc]) => {
+    const row = el('div', { style: 'display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(120,150,255,0.1);' });
+    row.appendChild(el('span', { style: 'color:#c5d2ff;font-weight:bold;' }, shape));
+    row.appendChild(el('span', { style: 'color:#a8b5e0;text-align:right;max-width:160px;' }, desc));
+    panel.appendChild(row);
+  });
+
+  // 能量任務
+  panel.appendChild(el('h3', { style: 'font-size:12px;letter-spacing:2px;color:#a8b5e0;margin:12px 0 8px;' }, '🔭 能量任務（各 +9）'));
+  const quests = [
+    ['火焰', '同回合觸發 2 次消除'],
+    ['冰晶', '任一星陣同時有 4 張同色'],
+    ['暗物質', '手牌有 3 張同星體'],
+    ['恆星', '單回合消除得 6 分以上'],
+    ['反物質', '單次消除 4 張'],
+    ['量子', '星陣同時有 6 種不同能量'],
+  ];
+  const energyColors = { '火焰': '#ff8c42', '冰晶': '#6ee7f7', '暗物質': '#b58aff', '恆星': '#ffd97a', '反物質': '#e8e8ff', '量子': '#4dd4ac' };
+  quests.forEach(([energy, desc]) => {
+    const row = el('div', { style: 'display:flex;gap:6px;align-items:flex-start;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(120,150,255,0.08);' });
+    row.appendChild(el('span', { style: `color:${energyColors[energy]};font-weight:bold;white-space:nowrap;min-width:44px;` }, energy));
+    row.appendChild(el('span', { style: 'color:#a8b5e0;' }, desc));
+    panel.appendChild(row);
+  });
+
+  return panel;
+}
+
+function renderPlayersPanel() {
+  return el('div', { class: 'players-panel' },
+    el('h3', {}, '玩家狀態'),
+    ...G.players.map((p, i) => {
+      const isCurrent = i === G.currentPlayer;
+      const ch = p.character ? CHARACTERS[p.character] : null;
+      const isFirst = i === G.firstPlayer;
+      return el('div', { class: 'player-card' + (isCurrent ? ' current-player' : ''), style: `border-color: ${p.color}` },
+        el('div', { class: 'player-name', style: `color: ${p.color}` },
+          (isCurrent ? '► ' : '') + p.name + (p.ai ? ' [AI]' : '') +
+          (isFirst ? ' 🏠' : '')
+        ),
+        el('div', { class: 'player-score' }, `⭐ ${p.score} 分` + (G.gameEndTriggered ? ' 🔔' : '')),
+        ch ? el('div', { style: 'font-size:11px;margin-top:2px;color:var(--col-muted)' },
+          `${ch.name} · 手${p.hand.length}/${effectiveHandLimit(p)} 任務${p.quests.length}/${effectiveQuestLimit(p)}`
+        ) : null,
+        el('div', { style: 'margin-top:4px' }, renderMiniGrid(p.personalGrid))
+      );
+    })
+  );
+}
+
+function renderMiniGrid(grid) {
+  if (!grid) return el('div');
+  const mini = el('div', { class: 'mini-grid' });
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const card = grid[r][c];
+      if (card) {
+        const e = ENERGY_BY[card.energy];
+        const cell = el('div', { class: 'mini-cell', style: `background:${e.color}22;border-color:${e.color}66` });
+        cell.innerHTML = `<div style="font-size:8px;color:${e.color}">${e.en.substring(0,2).toUpperCase()}</div>`;
+        mini.appendChild(cell);
+      } else {
+        mini.appendChild(el('div', { class: 'mini-cell empty' }));
+      }
+    }
+  }
+  return mini;
+}
+
+// ========== RENDER: 模態框 ==========
+function renderModal(modal) {
+  const overlay = el('div', { class: 'modal-bg' });
+  const box = el('div', { class: 'modal-box' });
+  if (modal.title) box.appendChild(el('div', { class: 'modal-title' }, modal.title));
+  if (modal.bodyHtml) {
+    const bodyEl = el('div', { class: 'modal-body' });
+    bodyEl.innerHTML = modal.bodyHtml;
+    box.appendChild(bodyEl);
+  } else if (modal.body) {
+    const bodyEl = el('div', { class: 'modal-body' });
+    const bodyContent = modal.body();
+    if (bodyContent) bodyEl.appendChild(bodyContent);
+    box.appendChild(bodyEl);
+  }
+  if (modal.actions && modal.actions.length > 0) {
+    const actionsEl = el('div', { class: 'modal-actions' });
+    modal.actions.forEach(a => {
+      const btn = el('button', {
+        class: a.primary ? 'btn-primary' : '',
+        onclick: a.onclick || (() => closeModal())
+      }, a.label);
+      actionsEl.appendChild(btn);
+    });
+    box.appendChild(actionsEl);
+  }
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+// ========== AI 回合 ==========
+// AI 評估某個推法的得分潛力
+function aiScorePush(grid, card, dir, idx) {
+  const clone = grid.map(r => [...r]);
+  // 模擬推入
+  let pushed = null;
+  const tmpCard = { ...card };
+  if (dir === 'down') {
+    pushed = clone[2][idx];
+    for (let r = 2; r > 0; r--) clone[r][idx] = clone[r-1][idx];
+    clone[0][idx] = tmpCard;
+  } else if (dir === 'up') {
+    pushed = clone[0][idx];
+    for (let r = 0; r < 2; r++) clone[r][idx] = clone[r+1][idx];
+    clone[2][idx] = tmpCard;
+  } else if (dir === 'right') {
+    pushed = clone[idx][2];
+    for (let c = 2; c > 0; c--) clone[idx][c] = clone[idx][c-1];
+    clone[idx][0] = tmpCard;
+  } else {
+    pushed = clone[idx][0];
+    for (let c = 0; c < 2; c++) clone[idx][c] = clone[idx][c+1];
+    clone[idx][2] = tmpCard;
+  }
+  const matches = findMatchesInGrid(clone);
+  return matches.reduce((s, m) => s + m.score, 0);
+}
+
+async function maybeRunAITurn() {
+  if (!G || G.phase !== 'playing') return;
+  const cp = G.players[G.currentPlayer];
+  if (!cp.ai) return;
+  await delay(700);
+  initTurnState();
+
+  // AI: 若手牌為空則星塵凝聚
+  if (cp.hand.length === 0) { await doStardust(cp); return; }
+
+  // AI: 選最佳手牌+位置（試所有組合）
+  if (cp.hand.length > 0) {
+    const dirs = ['down', 'up', 'left', 'right'];
+    let bestScore = -1, bestCardIdx = 0, bestGrid = G.centralGrid, bestDir = 'down', bestIdx = 0;
+    // 試個人和中央
+    const gridsToTry = [
+      { grid: cp.personalGrid, isCentral: false },
+      { grid: G.centralGrid, isCentral: true },
+    ];
+    for (let ci = 0; ci < cp.hand.length; ci++) {
+      for (const { grid, isCentral } of gridsToTry) {
+        for (const dir of dirs) {
+          for (let i = 0; i < 3; i++) {
+            const score = aiScorePush(grid, cp.hand[ci], dir, i);
+            // 中央星陣加一點偏好（放標記有額外收益）
+            const bonus = isCentral ? 1 : 0;
+            if (score + bonus > bestScore) {
+              bestScore = score + bonus;
+              bestCardIdx = ci;
+              bestGrid = grid;
+              bestDir = dir;
+              bestIdx = i;
+            }
+          }
+        }
+      }
+    }
+    // 若完全沒得分，隨機選個人星陣（避免全推中央）
+    if (bestScore === 0 && Math.random() < 0.4) {
+      bestGrid = cp.personalGrid;
+      bestDir = dirs[Math.floor(Math.random() * dirs.length)];
+      bestIdx = Math.floor(Math.random() * 3);
+    }
+    const card = cp.hand.splice(bestCardIdx, 1)[0];
+    const isCentral = bestGrid === G.centralGrid;
+    const pushed = pushIntoGrid3x3(bestGrid, card, bestDir, bestIdx);
+    G.turn.pushed = true;
+    const gridName = isCentral ? '中央星陣' : '個人星陣';
+    if (isCentral) {
+      const [mr, mc] = getInsertedCell(bestDir, bestIdx);
+      G.centralMarkers[mr][mc] = cp.idx;
+      log(`${cp.name} 推入 ${cardLabel(card)} 進${gridName}並放下標記。`);
+    } else {
+      log(`${cp.name} 推入 ${cardLabel(card)} 進${gridName}。`);
+    }
+    if (pushed) {
+      log(`${cp.name} 推出了 ${cardLabel(pushed)}。`);
+      G.discard.push(pushed);
+    }
+    await resolveCascades(bestGrid, cp);
+  }
+
+  // AI: 結算任務
+  for (let i = cp.quests.length - 1; i >= 0; i--) {
+    const q = cp.quests[i];
+    const Q = QUESTS[q.energy];
+    if (Q && Q.check(G, cp, G.turn)) await completeQuest(cp, i);
+  }
+
+  // AI: 從預備區取 1 張
+  await pickFromReserve(cp);
+  render();
+  await delay(400);
+  await endTurn();
+}
+
+// ========== 棄牌堆選牌（Kali 被動等）==========
+function showDiscardPicker(title, discardPile, callback) {
+  openModal({
+    title,
+    body: () => {
+      const wrap = el('div', { class: 'pick-grid' });
+      discardPile.forEach((card, i) => {
+        const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+        const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
+          onclick: () => { closeModal(); callback(card); }
+        });
+        div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
+        wrap.appendChild(div);
+      });
+      return wrap;
+    },
+    actions: [{ label: '取消', onclick: () => closeModal() }]
+  });
+}
+
+// ========== 遊戲結束畫面 ==========
+function renderGameOver() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  const sorted = [...G.players].sort((a, b) => b.score - a.score || b.completedQuests - a.completedQuests);
+  const tieNote = sorted.length > 1 && sorted[0].score === sorted[1].score ? '（任務數決勝）' : '';
+  app.appendChild(el('div', { class: 'menu-screen' },
+    el('h1', { class: 'brand' }, '星移 · CELESTIAL SHIFT V4'),
+    el('h2', { style: 'color:#ffd6a8;margin:16px 0' }, `🏆 ${sorted[0].name} 獲勝！${tieNote}`),
+    el('table', { style: 'margin:16px auto;border-collapse:collapse' },
+      el('thead', {}, el('tr', {}, el('th', {}, '名次'), el('th', {}, '玩家'), el('th', {}, '分數'), el('th', {}, '完成任務'))),
+      el('tbody', {}, ...sorted.map((p, i) =>
+        el('tr', { style: `color: ${p.color}` },
+          el('td', { style: 'padding:8px 16px' }, `#${i + 1}`),
+          el('td', { style: 'padding:8px 16px' }, p.name),
+          el('td', { style: 'padding:8px 16px;font-weight:bold' }, `${p.score} 分`),
+          el('td', { style: 'padding:8px 16px' }, `${p.completedQuests} 個`)
+        )
+      ))
+    ),
+    el('button', { class: 'start-btn', style: 'margin-top:24px', onclick: () => { G = null; render(); } }, '返回主選單')
+  ));
+}
+
+
+
+// ========== FIREBASE 連線 ==========
+const FIREBASE_DB_URL = "https://celestial-shift-46886-default-rtdb.asia-southeast1.firebasedatabase.app";
+let fbApp, db;
+try {
+  fbApp = firebase.app();
+} catch(e) {
+  fbApp = firebase.initializeApp({ databaseURL: FIREBASE_DB_URL });
+}
+db = firebase.database();
+
+let myPlayerIdx = null;
+let roomRef = null;
+let isSyncing = false;
+let isPushing = false; // host 推送時忽略自己的 listener 回響
+
+function genRoomCode() {
+  return Math.random().toString(36).substring(2, 7).toUpperCase();
+}
+
+function showOnlineError(msg) {
+  // 在畫面右上角顯示連線錯誤提示
+  let bar = document.getElementById('online-error-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'online-error-bar';
+    bar.style.cssText = 'position:fixed;top:10px;right:10px;z-index:9999;background:#c0392b;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;max-width:380px;word-break:break-all;box-shadow:0 4px 16px rgba(0,0,0,0.5)';
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = `⚠️ 連線錯誤：${msg}<br><small style="opacity:0.8">請檢查 Firebase 資料庫規則是否允許讀寫（設為 true）</small>`;
+  clearTimeout(bar._timer);
+  bar._timer = setTimeout(() => bar.remove(), 15000);
+}
+
+async function pushState() {
+  if (!roomRef || isSyncing || !G) return;
+  try {
+    isPushing = true;
+    const snapshot = JSON.parse(JSON.stringify(G));
+    await roomRef.child('state').set(snapshot);
+    console.log('[Online] pushState 成功，phase:', G.phase);
+  } catch(e) {
+    console.error('[Online] pushState 失敗:', e);
+    const msg = e.code === 'PERMISSION_DENIED'
+      ? 'Firebase 權限不足（PERMISSION_DENIED），請將資料庫規則設為允許讀寫'
+      : e.message || String(e);
+    showOnlineError(msg);
+  } finally {
+    // 延遲清除：讓 Firebase 本地 listener 先觸發並被跳過
+    setTimeout(() => { isPushing = false; }, 300);
+  }
+}
+
+function fixGrid(g) {
+  if (!g) return [[null,null,null],[null,null,null],[null,null,null]];
+  const result = [];
+  for (let r = 0; r < 3; r++) {
+    result.push([]);
+    for (let c = 0; c < 3; c++) {
+      result[r].push((g[r] && g[r][c] !== undefined) ? g[r][c] : null);
+    }
+  }
+  return result;
+}
+
+function listenRoom(code) {
+  roomRef = db.ref('rooms/' + code);
+  roomRef.child('state').on('value', snap => {
+    try {
+      if (!snap.exists() || isSyncing) return;
+      // playing 階段：跳過自己推送的 echo，避免無意義的重複 render
+      if (isPushing && G && G.phase === 'playing') return;
+      const newState = snap.val();
+      if (!newState) return;
+      console.log('[Online] 收到狀態更新，phase:', newState.phase);
+      isSyncing = true;
+      G = newState;
+      G.centralGrid = fixGrid(G.centralGrid);
+      G.centralMarkers = fixGrid(G.centralMarkers);
+
+      // ★ Firebase 會省略空陣列（[] → undefined），在選牌階段尤其嚴重，必須補回
+      const toArr = v => Array.isArray(v) ? v : (v && typeof v === 'object') ? Object.values(v) : [];
+      if (!Array.isArray(G.players)) G.players = toArr(G.players);
+      if (!Array.isArray(G.deck))    G.deck    = toArr(G.deck);
+      if (!Array.isArray(G.discard)) G.discard = toArr(G.discard);
+      if (!Array.isArray(G.reserve)) G.reserve = toArr(G.reserve);
+      if (!Array.isArray(G.log))     G.log     = toArr(G.log);
+      if (G.currentSetupCards && !Array.isArray(G.currentSetupCards))
+        G.currentSetupCards = Object.values(G.currentSetupCards);
+      for (const p of G.players) {
+        if (!Array.isArray(p.hand))   p.hand   = toArr(p.hand);
+        if (!Array.isArray(p.quests)) p.quests = toArr(p.quests);
+        if (p.personalGrid) p.personalGrid = fixGrid(p.personalGrid);
+      }
+      // 修復 takenChars：Set 序列化為 {}，Firebase 再把空物件整個省略
+      // → 無論是否存在都從 players 重建，確保 character-pick 階段不崩潰
+      {
+        const taken = new Set();
+        G.players.forEach(p => { if (p.character) taken.add(p.character); });
+        G.takenChars = taken;
+      }
+      isSyncing = false;
+
+      // 選牌階段：若已有彈窗開啟則不強制 render，避免蓋掉正在操作的彈窗
+      const hasPickModal = !!document.querySelector('.modal-bg');
+      if (!hasPickModal) render();
+
+      // 觸發選擇階段流程（各自在自己的裝置處理）
+      if (G.phase === 'character-pick' && !hasPickModal) {
+        onlineHandleCharacterPickPhase();
+      } else if (G.phase === 'setup-pick' && !hasPickModal) {
+        onlineHandleSetupPickPhase();
+      }
+
+      // host 負責跑 AI
+      const cp = G && G.players && G.players[G.currentPlayer];
+      if (cp && cp.ai && myPlayerIdx === 0 && G.phase === 'playing') {
+        setTimeout(maybeRunAITurn, 800);
+      }
+    } catch(e) {
+      isSyncing = false;
+      console.error('[Online] listenRoom 處理狀態時發生錯誤:', e);
+      showOnlineError('處理狀態時發生錯誤：' + (e.message || String(e)));
+    }
+  }, err => {
+    // Firebase 讀取錯誤（如 PERMISSION_DENIED）
+    console.error('[Online] Firebase listener 錯誤:', err);
+    const msg = err.code === 'PERMISSION_DENIED'
+      ? 'Firebase 權限不足（PERMISSION_DENIED）。請將 Firebase 資料庫規則改為允許讀取（".read": true）'
+      : err.message || String(err);
+    showOnlineError(msg);
+  });
+}
+
+// ========== 連線模式：角色選擇階段處理 ==========
+function onlineHandleCharacterPickPhase() {
+  if (!G || G.phase !== 'character-pick') return;
+
+  // 所有人選完 → Host 負責過渡到開局選牌
+  if (G.characterPickIdx >= G.players.length) {
+    if (myPlayerIdx === 0) {
+      G.phase = 'setup-pick';
+      G.setupPickIdx = 0;
+      // 為第一位非 AI 玩家預抽 5 張牌
+      const firstP = G.players[0];
+      if (!firstP.ai) {
+        G.currentSetupCards = drawN(G, 5);
+      }
+      pushState();
+    }
+    return;
+  }
+
+  const p = G.players[G.characterPickIdx];
+
+  // AI 角色 → Host 自動選
+  if (p.ai) {
+    if (myPlayerIdx === 0) {
+      const available = Object.values(CHARACTERS).filter(c => !G.takenChars.has(c.id));
+      const pick = available[Math.floor(Math.random() * available.length)];
+      p.character = pick.id;
+      G.takenChars.add(pick.id);
+      log(`${p.name} 選擇了 ${pick.name}（${ENERGY_BY[pick.energy].en}）。`, 'system');
+      G.characterPickIdx++;
+      pushState();
+    }
+    return;
+  }
+
+  // 輪到自己選角色 → 顯示彈窗
+  if (p.idx === myPlayerIdx) {
+    if (!document.querySelector('.modal-bg')) {
+      nextCharacterPick(); // 開角色選擇 modal
+    }
+  }
+  // 非自己的回合 → 等待對方裝置推送
+}
+
+// ========== 連線模式：開局選牌階段處理 ==========
+function onlineHandleSetupPickPhase() {
+  if (!G || G.phase !== 'setup-pick') return;
+
+  // 所有人選完 → Host 負責過渡到遊戲
+  if (G.setupPickIdx >= G.players.length) {
+    if (myPlayerIdx === 0) {
+      G.phase = 'playing';
+      G.currentSetupCards = null;
+      log(`系統：遊戲開始！由 ${G.players[G.currentPlayer].name} 先手。`, 'system');
+      pushState();
+      render();
+      setTimeout(maybeRunAITurn, 600);
+    }
+    return;
+  }
+
+  const p = G.players[G.setupPickIdx];
+
+  // AI 玩家 → Host 自動選
+  if (p.ai) {
+    if (myPlayerIdx === 0) {
+      const five = G.currentSetupCards || drawN(G, 5);
+      const sorted = [...five].sort((a, b) => SHAPE_BY[b.shape].stars - SHAPE_BY[a.shape].stars);
+      p.hand = [sorted[1], sorted[2], sorted[3]];
+      p.quests = [{ energy: sorted[0].energy, card: sorted[0] }];
+      G.discard.push(sorted[4]);
+      log(`${p.name} 完成開局抽牌。`, 'system');
+      G.setupPickIdx++;
+      G.currentSetupCards = null;
+      // 為下一位非 AI 玩家預抽牌
+      if (G.setupPickIdx < G.players.length) {
+        const nextP = G.players[G.setupPickIdx];
+        if (!nextP.ai) G.currentSetupCards = drawN(G, 5);
+      }
+      pushState();
+    }
+    return;
+  }
+
+  // 非本地玩家 → Host 確保已幫他們抽牌並推送
+  if (p.idx !== myPlayerIdx) {
+    if (myPlayerIdx === 0 && !G.currentSetupCards) {
+      G.currentSetupCards = drawN(G, 5);
+      pushState();
+    }
+    return; // 等待對方裝置收到 currentSetupCards 後開彈窗
+  }
+
+  // 輪到自己 → 開選牌彈窗
+  if (G.currentSetupCards && !document.querySelector('.modal-bg')) {
+    openSetupPickModal(p, G.currentSetupCards);
+  } else if (!G.currentSetupCards && myPlayerIdx === 0) {
+    // Host 自己的牌還沒抽（理論上 beginSetupPick 應已處理）
+    G.currentSetupCards = drawN(G, 5);
+    pushState();
+  }
+}
+
+function isOnlineMode() { return G && G.config && G.config.mode === 'online'; }
+function isMyTurn() {
+  if (!isOnlineMode()) return true;
+  return G.currentPlayer === myPlayerIdx;
+}
+
+// ========== Firebase 連線診斷 ==========
+async function checkFirebaseConnection() {
+  const statusEl = document.getElementById('fb-conn-status');
+  if (!statusEl) return;
+  statusEl.textContent = '🔄 測試 Firebase 連線…';
+  try {
+    const testRef = db.ref('_ping_test');
+    await testRef.set({ ts: Date.now() });
+    await testRef.remove();
+    statusEl.innerHTML = '✅ Firebase 連線正常';
+    statusEl.style.color = '#4dd4ac';
+  } catch(e) {
+    const isPermission = e.code === 'PERMISSION_DENIED';
+    statusEl.innerHTML = isPermission
+      ? '⛔ Firebase <b>權限不足</b>！需前往 Firebase Console 修改規則'
+      : '❌ 連線失敗：' + (e.message || String(e));
+    statusEl.style.color = '#ff6b6b';
+    if (isPermission) {
+      // 顯示修改指引
+      const guide = document.getElementById('fb-rules-guide');
+      if (guide) guide.style.display = 'block';
+    }
+  }
+}
+
+// ========== 連線主選單 ==========
+function renderOnlineMenu() {
+  document.getElementById('app').innerHTML = '';
+  document.getElementById('app').appendChild(
+    el('div', { class: 'menu' },
+      el('div', { class: 'title' }, '星 移'),
+      el('div', { class: 'subtitle' }, 'CELESTIAL  SHIFT · ONLINE'),
+      el('div', { class: 'panel' },
+        el('h3', {}, '連線對戰'),
+        el('div', { id: 'fb-conn-status', style: 'font-size:12px;color:#a8b5e0;margin-bottom:8px;min-height:16px;' }, ''),
+        el('div', { id: 'fb-rules-guide', style: 'display:none;background:rgba(255,100,100,0.1);border:1px solid rgba(255,100,100,0.3);border-radius:8px;padding:10px;margin-bottom:12px;font-size:12px;color:#ffa8a8;' },
+          '📋 修復步驟：前往 ',
+          el('a', { href: 'https://console.firebase.google.com/', target: '_blank', style: 'color:#ffd6a8' }, 'Firebase Console'),
+          ' → Realtime Database → 規則，將規則改為：',
+          el('pre', { style: 'background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;margin:6px 0;overflow-x:auto;' },
+            '{\n  "rules": {\n    ".read": true,\n    ".write": true\n  }\n}'
+          )
+        ),
+        el('div', { style: 'display:flex;gap:12px;margin:20px 0;' },
+          el('button', { class: 'start-btn', style: 'flex:1;padding:14px;font-size:16px;', onclick: showCreateRoom }, '🏠 建立房間'),
+          el('button', { class: 'start-btn', style: 'flex:1;padding:14px;font-size:16px;background:linear-gradient(135deg,#3a5a8a,#6a4aaa);', onclick: showJoinRoom }, '🚀 加入房間'),
+        ),
+        el('button', { class: 'rules-btn', onclick: () => { G = null; myPlayerIdx = null; roomRef = null; render(); } }, '← 返回'),
+      )
+    )
+  );
+  // 自動診斷
+  setTimeout(checkFirebaseConnection, 200);
+}
+
+function showCreateRoom() {
+  const code = genRoomCode();
+  document.getElementById('app').innerHTML = '';
+  document.getElementById('app').appendChild(
+    el('div', { class: 'menu' },
+      el('div', { class: 'title' }, '星 移'),
+      el('div', { class: 'panel' },
+        el('h3', { style: 'margin-bottom:16px;' }, '建立房間'),
+        el('p', { style: 'font-size:13px;color:#a8b5e0;margin-bottom:6px;' }, '房間碼（分享給朋友）：'),
+        el('div', { id: 'roomCodeDisplay', style: 'font-size:40px;font-weight:bold;letter-spacing:10px;color:#ffd6a8;text-align:center;padding:14px;background:rgba(255,214,168,0.1);border-radius:10px;margin-bottom:18px;cursor:pointer;', title: '點擊複製', onclick: () => { navigator.clipboard?.writeText(code); document.getElementById('copyHint').textContent = '已複製！'; } }, code),
+        el('div', { id: 'copyHint', style: 'font-size:11px;color:#6a8;text-align:center;margin-bottom:10px;min-height:16px;' }, '點擊房間碼可複製'),
+        el('label', {}, el('span', {}, '你的名字'), el('input', { type: 'text', id: 'hostNameInp', value: 'Walker 1' })),
+        el('label', {}, el('span', {}, '總玩家數'), el('select', { id: 'hostCountSel' },
+          el('option', { value: 2 }, '2 人'), el('option', { value: 3 }, '3 人'), el('option', { value: 4 }, '4 人'),
+        )),
+        el('label', {}, el('span', {}, 'Void Walker'), el('select', { id: 'hostVwSel' },
+          el('option', { value: 'on' }, '開啟'), el('option', { value: 'off' }, '關閉'),
+        )),
+        el('div', { id: 'lobbyStatus', style: 'margin:12px 0;color:#94a4d3;font-size:13px;text-align:center;padding:8px;background:rgba(20,28,60,0.5);border-radius:8px;min-height:36px;' }, '等待玩家加入…'),
+        el('div', { style: 'display:flex;gap:8px;margin-top:8px;' },
+          el('button', { class: 'start-btn', onclick: () => hostStartGame(code) }, '開始遊戲'),
+          el('button', { class: 'rules-btn', onclick: () => { db.ref('rooms/' + code).remove(); renderOnlineMenu(); } }, '取消'),
+        )
+      )
+    )
+  );
+  myPlayerIdx = 0;
+  const myName = ''; // 會在 hostStartGame 時讀
+  db.ref('rooms/' + code + '/players/0').set({ name: 'Host', ready: true });
+  // 監聽玩家加入更新大廳顯示
+  db.ref('rooms/' + code + '/players').on('value', snap => {
+    const el2 = document.getElementById('lobbyStatus');
+    if (!el2 || !snap.exists()) return;
+    const players = snap.val() || {};
+    const names = Object.values(players).map(p => p.name);
+    el2.innerHTML = `已加入（${names.length} 人）：<br><b style="color:#ffd6a8">${names.join('、')}</b>`;
+  });
+  listenRoom(code);
+}
+
+function showJoinRoom() {
+  document.getElementById('app').innerHTML = '';
+  document.getElementById('app').appendChild(
+    el('div', { class: 'menu' },
+      el('div', { class: 'title' }, '星 移'),
+      el('div', { class: 'panel' },
+        el('h3', { style: 'margin-bottom:16px;' }, '加入房間'),
+        el('label', {}, el('span', {}, '你的名字'), el('input', { type: 'text', id: 'joinNameInp', value: 'Walker 2' })),
+        el('label', {}, el('span', {}, '房間碼'), el('input', { type: 'text', id: 'joinCodeInp', placeholder: 'XXXXX', style: 'letter-spacing:4px;text-transform:uppercase;min-width:120px;' })),
+        el('div', { id: 'joinStatus', style: 'margin:12px 0;color:#94a4d3;font-size:13px;text-align:center;min-height:20px;' }, ''),
+        el('div', { style: 'display:flex;gap:8px;' },
+          el('button', { class: 'start-btn', onclick: doJoinRoom }, '加入'),
+          el('button', { class: 'rules-btn', onclick: renderOnlineMenu }, '← 返回'),
+        )
+      )
+    )
+  );
+}
+
+async function doJoinRoom() {
+  const code = (document.getElementById('joinCodeInp')?.value || '').toUpperCase().trim();
+  const name = document.getElementById('joinNameInp')?.value || 'Walker';
+  const statusEl = document.getElementById('joinStatus');
+  if (!code) { statusEl.textContent = '請輸入房間碼'; return; }
+  statusEl.textContent = '連線中…';
+  try {
+    const snap = await db.ref('rooms/' + code).get();
+    if (!snap.exists()) { statusEl.textContent = '找不到此房間，請確認房間碼'; return; }
+    const players = snap.val().players || {};
+    const takenIdxs = Object.keys(players).map(Number);
+    let myIdx = 1;
+    while (takenIdxs.includes(myIdx)) myIdx++;
+    myPlayerIdx = myIdx;
+    await db.ref('rooms/' + code + '/players/' + myIdx).set({ name, ready: true });
+    listenRoom(code);
+    statusEl.innerHTML = `✅ 已加入！你是<b style="color:#ffd6a8"> 玩家 ${myIdx + 1}</b>，等待房主開始遊戲…`;
+  } catch(e) {
+    console.error('[Online] doJoinRoom 失敗:', e);
+    const msg = e.code === 'PERMISSION_DENIED'
+      ? '⛔ Firebase 權限不足。請前往 Firebase Console → Realtime Database → 規則，將 .read 和 .write 都改為 true'
+      : '❌ 連線失敗：' + (e.message || String(e));
+    statusEl.innerHTML = `<span style="color:#ff6b6b">${msg}</span>`;
+  }
+}
+
+async function hostStartGame(code) {
+  const count = parseInt(document.getElementById('hostCountSel')?.value || 2);
+  const myName = document.getElementById('hostNameInp')?.value || 'Walker 1';
+  const voidWalker = (document.getElementById('hostVwSel')?.value || 'on') === 'on';
+  const snap = await db.ref('rooms/' + code + '/players').get();
+  const joinedPlayers = snap.exists() ? snap.val() : {};
+  // 更新 host 名字
+  await db.ref('rooms/' + code + '/players/0').set({ name: myName, ready: true });
+  const players = [];
+  for (let i = 0; i < count; i++) {
+    const name = joinedPlayers[i]?.name || (i === 0 ? myName : `玩家 ${i + 1}`);
+    players.push({ name, ai: false });
+  }
+  startGame({ mode: 'online', players, voidWalker });
+  // startGame 已初始化 G（包含 beginCharacterPick/beginSetupPick 設定的 currentSetupCards）
+  // 推送初始狀態：讓 Firebase listener 在各自裝置上驅動選角/選牌彈窗
+  console.log('[Online] hostStartGame: 推送初始狀態，phase:', G.phase);
+  await pushState();
+}
+
+// ========== 攔截 canPushNow 讓非我回合無法操作 ==========
+const _origCanPushNow = canPushNow;
+canPushNow = function() {
+  if (!isMyTurn()) return false;
+  return _origCanPushNow();
+};
+
+// ========== 攔截 endTurn 讓連線版 push state ==========
+const _origEndTurn = endTurn;
+endTurn = async function() {
+  await _origEndTurn();
+  if (isOnlineMode()) await pushState();
+};
+
+// ========== 遊戲狀態變化後 push（覆寫關鍵函數）==========
+// 攔截 resolveCascades 結尾
+const _origResolveCascades = resolveCascades;
+resolveCascades = async function(grid, cp) {
+  await _origResolveCascades(grid, cp);
+  if (isOnlineMode() && !isSyncing) await pushState();
+};
+
+// ========== 在 renderGame 加上「非你的回合」提示 ==========
+const _origRenderInstructions = renderInstructions;
+renderInstructions = function() {
+  if (isOnlineMode() && G) {
+    // 角色選擇：等待其他玩家選角
+    if (G.phase === 'character-pick' && G.characterPickIdx < G.players.length && G.players[G.characterPickIdx]?.idx !== myPlayerIdx) {
+      const waiting = G.players[G.characterPickIdx];
+      return el('div', { class: 'instructions', style: 'background:rgba(30,60,120,0.4);color:#a8c8ff;' },
+        `⏳ 等待 ${waiting?.name || ''} 選擇 Void Walker…`
+      );
+    }
+    // 開局選牌：等待其他玩家配置
+    if (G.phase === 'setup-pick' && G.setupPickIdx < G.players.length && G.players[G.setupPickIdx]?.idx !== myPlayerIdx) {
+      const waiting = G.players[G.setupPickIdx];
+      return el('div', { class: 'instructions', style: 'background:rgba(30,60,120,0.4);color:#a8c8ff;' },
+        `⏳ 等待 ${waiting?.name || ''} 完成開局選牌…`
+      );
+    }
+    // 遊戲進行中：等待對手操作
+    if (G.phase === 'playing' && !isMyTurn()) {
+      const cp = G.players[G.currentPlayer];
+      return el('div', { class: 'instructions', style: 'background:rgba(100,50,50,0.3);color:#ffb8b8;' },
+        `⏳ 等待 ${cp?.name || ''} 操作中…`
+      );
+    }
+  }
+  return _origRenderInstructions();
+};
+
+// ========== 初始化 ==========
+document.addEventListener('DOMContentLoaded', () => {
+  render();
+});
+</script>
+</body>
+</html>
