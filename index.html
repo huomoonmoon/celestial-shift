@@ -416,7 +416,7 @@ const CHARACTERS = {
     flavor: '他的專長是讓事情倒回去。',
     passiveDesc: '【湮滅】：每輪一次，完成觀測任務時，可指定中央星陣中任意 1 張牌棄置，該格依常規補牌。',
     activeName: '逆位',
-    activeDesc: '（須在本回合插卡前發動）棄置選定個人星陣全部 9 張牌，並隨機補入 9 張新牌，本次觸發的消除得分 ×2。消耗 1 顆面板星核。',
+    activeDesc: '（須在本回合插卡前發動）指定任一個人星陣，將其 9 張牌全部置入棄牌堆，再自牌庫抽 9 張隨機排入；排入時若形成消除，得分計入你。本回合你另可對該星陣插卡，其觸發的消除亦由你計分。消耗 1 顆面板星核。',
   },
   tavi: {
     id: 'tavi', name: '塔薇·莫絲', en: 'Tavi Moss', energy: 'quan',
@@ -735,7 +735,7 @@ function log(text, type) {
 }
 
 function initTurnState() {
-  G.turn = { eliminations: 0, eliminationScore: 0, maxElimSingle: 0, pushed: false, swapsUsed: 0, questsCompleted: 0, rykDoubleScore: false, taviExtraGrid: null };
+  G.turn = { eliminations: 0, eliminationScore: 0, maxElimSingle: 0, pushed: false, swapsUsed: 0, questsCompleted: 0, rykExtraGrid: null, taviExtraGrid: null };
   return G.turn;
 }
 
@@ -1190,8 +1190,7 @@ async function resolveCascades(grid, cp) {
   let turnScore = 0;
   for (const m of matches) {
     let score = m.score;
-    if (G.turn.rykDoubleScore) score *= 2;
-    const extra = score > m.score ? ` ×2` : '';
+    const extra = '';
     log(`✨ ${m.name}（${ENERGY_BY[m.energy].name}）+${score}${extra}`, 'score');
     G.turn.eliminations++;
     G.turn.eliminationScore += score;
@@ -1693,11 +1692,15 @@ async function doStardust(cp) {
 }
 
 // ========== 16. 互動：推牌 ==========
-function canPushNow() {
+function canPushNow(grid) {
   if (!G || G.phase !== 'playing') return false;
   const cp = G.players[G.currentPlayer];
   if (cp.ai || UI.awaiting) return false;
   if (UI.selectedHand == null && !(UI.awaiting && UI.awaiting.type === 'meteorAbilityPush')) return false;
+  // rykExtraGrid: 可對額外星陣插卡（不受 pushed 限制，但只限那個星陣第一次插）
+  if (grid && G.turn && G.turn.rykExtraGrid === grid) {
+    return !(G.turn.rykExtraPushed);
+  }
   if (G.turn && G.turn.pushed) return false;
   return true;
 }
@@ -1736,8 +1739,12 @@ async function onPushClick(grid, dir, idx) {
   const card = cp.hand.splice(UI.selectedHand, 1)[0];
   UI.selectedHand = null;
   if (!G.turn) initTurnState();
-  G.turn.pushed = true;
-  const gridName = grid === G.centralGrid ? '中央星陣' : '個人星陣';
+  if (G.turn && G.turn.rykExtraGrid === grid) {
+    G.turn.rykExtraPushed = true;
+  } else {
+    G.turn.pushed = true;
+  }
+  const gridName = grid === G.centralGrid ? '中央星陣' : (G.turn && G.turn.rykExtraGrid === grid ? '逆位星陣' : '個人星陣');
   log(`${cp.name} 將 ${cardLabel(card)} 推入${gridName}（${dirName(dir)} 第 ${idx + 1} ${dir === 'down' || dir === 'up' ? '列' : '行'}）。`);
   const pushedOut = pushIntoGrid3x3(grid, card, dir, idx);
   // 推入中央星陣後詢問是否放標記
@@ -1883,16 +1890,30 @@ async function triggerCharacterActive(p) {
       });
     });
     if (!targetP) { render(); return; }
+    // 清空目標星陣（牌與星核）
     for (let r = 0; r < 3; r++) for (let cv = 0; cv < 3; cv++) {
       if (targetP.personalGrid[r][cv]) { G.discard.push(targetP.personalGrid[r][cv]); targetP.personalGrid[r][cv] = null; }
       if (targetP.personalStarCores[r][cv] !== null) { const co = G.players[targetP.personalStarCores[r][cv]]; if (co) co.coreStock=Math.min(5,(co.coreStock||0)+1); targetP.personalStarCores[r][cv]=null; }
     }
-    G.turn.rykDoubleScore = true;
-    const newCards = drawN(G, 9); let ni = 0;
-    for (let r = 0; r < 3; r++) for (let cv = 0; cv < 3; cv++) { if (ni < newCards.length) targetP.personalGrid[r][cv] = newCards[ni++]; }
-    log('⚡ 瑞克「逆位」：重置 ' + targetP.name + ' 的個人星陣！本次消除得分 ×2。', 'system');
-    await resolveCascades(targetP.personalGrid, p);
-    G.turn.pushed = true; G.awaitingEndTurn = true;
+    // 抽 9 張補入，補入時若形成消除則丟棄重補（得分計入瑞克）
+    for (let r = 0; r < 3; r++) for (let cv = 0; cv < 3; cv++) {
+      let tries = 0;
+      while (tries++ < 30) {
+        const d = drawN(G, 1); if (!d.length) break;
+        targetP.personalGrid[r][cv] = d[0];
+        const matches = findMatchesInGrid(targetP.personalGrid);
+        if (matches.length > 0) {
+          // 有消除：結算得分歸瑞克，然後清除並繼續補
+          await resolveCascades(targetP.personalGrid, p);
+          // 可能此格已被消除清空，繼續補
+          if (!targetP.personalGrid[r][cv]) continue;
+        }
+        break;
+      }
+    }
+    // 本回合可對該星陣插卡（設為額外可操作星陣）
+    G.turn.rykExtraGrid = targetP.personalGrid;
+    log('⚡ 瑞克「逆位」：重置 ' + targetP.name + ' 的個人星陣！本回合可對該星陣插卡，消除計入你。', 'system');
   } else if (p.character === 'tavi') {
     const validGrids = [];
     if (G.centralStarCores.some(row => row.some(v => v === p.idx))) validGrids.push(G.centralGrid);
@@ -2299,10 +2320,11 @@ function renderInstructions() {
 function renderGridsRow() {
   const cp = G.players[G.currentPlayer];
   // 需要顯示所有玩家個人星陣的情境
-  const needAllGrids = UI.awaiting && (
+  const rykExtraGrid = G.turn && G.turn.rykExtraGrid;
+  const needAllGrids = (UI.awaiting && (
     UI.awaiting.type === 'sielVoidGrab' ||
     UI.awaiting.type === 'taviPassivePlace'
-  );
+  )) || rykExtraGrid;
   if (needAllGrids) {
     const sections = [];
     G.players.forEach(p => {
@@ -2333,7 +2355,7 @@ function renderGridsRow() {
 function renderGrid(grid, gridType, cp) {
   const gridId = gridType === 'central' ? 'central' : (gridType.startsWith('personal-') ? gridType : `personal-${G.currentPlayer}`);
   const targetGrid = gridType === 'central' ? G.centralGrid : cp.personalGrid;
-  const canPush = canPushNow() || (UI.awaiting && UI.awaiting.type === 'cometAbilityPush');
+  const canPush = canPushNow(targetGrid) || (UI.awaiting && UI.awaiting.type === 'cometAbilityPush');
   const frame = el('div', { class: 'grid-frame' + (gridType === 'central' ? ' central-frame' : '') });
   const gridEl = el('div', { class: 'grid', 'data-grid-id': gridId });
 
