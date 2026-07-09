@@ -2388,6 +2388,26 @@ function renderInstructions() {
 // ========== RENDER: 星陣格子（3×3 + 外圈箭頭，共5×5）==========
 function renderGridsRow() {
   const cp = G.players[G.currentPlayer];
+  // 需要顯示所有玩家個人星陣的情境
+  const needAllGrids = UI.awaiting && (
+    UI.awaiting.type === 'sielVoidGrab' ||
+    UI.awaiting.type === 'taviPassivePlace'
+  );
+  if (needAllGrids) {
+    const sections = [];
+    G.players.forEach(p => {
+      const label = p.idx === cp.idx ? p.name + ' 的個人星陣（你）' : p.name + ' 的個人星陣';
+      sections.push(el('div', { class: 'grid-section' },
+        el('div', { class: 'grid-section-label', style: p.idx === cp.idx ? '' : 'color:#ffb88a;' }, label),
+        renderGrid(p.personalGrid, 'personal-' + p.idx, p)
+      ));
+    });
+    sections.push(el('div', { class: 'grid-section' },
+      el('div', { class: 'grid-section-label', style: 'color:#ffd6a8;' }, '共用中央星陣'),
+      renderGrid(G.centralGrid, 'central', cp)
+    ));
+    return el('div', { class: 'grids-row', style: 'flex-wrap:wrap;gap:12px;' }, ...sections);
+  }
   return el('div', { class: 'grids-row' },
     el('div', { class: 'grid-section' },
       el('div', { class: 'grid-section-label' }, `${cp.name} 的個人星陣`),
@@ -2401,7 +2421,7 @@ function renderGridsRow() {
 }
 
 function renderGrid(grid, gridType, cp) {
-  const gridId = gridType === 'central' ? 'central' : `personal-${G.currentPlayer}`;
+  const gridId = gridType === 'central' ? 'central' : (gridType.startsWith('personal-') ? gridType : `personal-${G.currentPlayer}`);
   const targetGrid = gridType === 'central' ? G.centralGrid : cp.personalGrid;
   const canPush = canPushNow() || (UI.awaiting && UI.awaiting.type === 'cometAbilityPush');
   const frame = el('div', { class: 'grid-frame' + (gridType === 'central' ? ' central-frame' : '') });
@@ -2455,7 +2475,20 @@ function renderGrid(grid, gridType, cp) {
         if (card) {
           gridEl.appendChild(renderStarCard(card, targetGrid, gr, gc));
         } else {
-          gridEl.appendChild(el('div', { class: 'grid-cell empty' }));
+          // 空格：特定 awaiting 模式下仍可點擊
+          const emptyDiv = el('div', { class: 'grid-cell empty' });
+          if (UI.awaiting) {
+            const awt = UI.awaiting.type;
+            const isCentral = targetGrid === G.centralGrid;
+            if (awt === 'eoFreezeSelect' && isCentral) {
+              emptyDiv.classList.add('selectable');
+              emptyDiv.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+            } else if (awt === 'taviPassivePlace') {
+              emptyDiv.classList.add('selectable');
+              emptyDiv.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+            }
+          }
+          gridEl.appendChild(emptyDiv);
         }
       }
     }
@@ -2495,6 +2528,22 @@ function renderStarCard(card, targetGrid, gr, gc) {
       div.classList.add('selectable');
       div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
     } else if (awt === 'rykSwapGrid' && card) {
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    } else if (awt === 'eoFreezeSelect' && isCentral) {
+      // 艾歐「絕對零度」：點中央星陣格（含空格）
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    } else if (awt === 'sielVoidGrab' && !isCentral && card && UI.awaiting.targetPlayer && targetGrid === UI.awaiting.targetPlayer.personalGrid) {
+      // 席爾「虛空掠奪」：點目標對手個人星陣格
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    } else if (awt === 'sielVoidDrawSelect' && !isCentral && card) {
+      // 席爾「虛空汲取」：點自己個人星陣格（由 onPickGrid 內部再驗證是自己的格）
+      div.classList.add('selectable');
+      div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
+    } else if (awt === 'taviPassivePlace') {
+      // 塔薇「疊加態」：點任意星陣格
       div.classList.add('selectable');
       div.addEventListener('click', () => UI.awaiting.onPickGrid(targetGrid, gr, gc));
     }
