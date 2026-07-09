@@ -390,9 +390,9 @@ const CHARACTERS = {
     id: 'eo', name: '艾歐·貝納', en: 'Eo Venna', energy: 'cryo',
     role: '低溫物理學家', gender: '男',
     flavor: '在絕對零度的研究站獨自工作了七年，學會了讓時間慢下來。',
-    passiveDesc: '【凍結】：在中央星陣放置星核時，可選擇將該格「凍結」——被凍結的格子不會被推移，亦不列入消除判定，直至你的下一回合結束。',
+    passiveDesc: '【凍結】：你推入中央星陣放置星核時，可改放在已有其他玩家星核的牌上。你的回合開始時，若你的星核與其他玩家的星核位於同一張牌上，移除該牌上其他玩家的星核。',
     activeName: '絕對零度',
-    activeDesc: '指定中央星陣中的 1 個格子，對其施加凍結效果，持續至你的下一回合結束。消耗 1 顆面板星核。',
+    activeDesc: '指定中央星陣 1 格放置凍結標記；至你的下一回合前，該格不可被任何玩家推移，也不列入消除判定。消耗 1 顆面板星核。',
   },
   siel: {
     id: 'siel', name: '席爾·渥恩', en: 'Siel Vorn', energy: 'dark',
@@ -406,7 +406,7 @@ const CHARACTERS = {
     id: 'luna', name: '露娜·歐希', en: 'Luna Oshi', energy: 'solar',
     role: '恆星航行者', gender: '女',
     flavor: '以太陽帆橫渡過四個星系，從不攜帶武器。',
-    passiveDesc: '【光帆】：完成觀測任務時，額外抽 1 張牌，若此時你的面板星核少於 2 顆，則補充 1 顆面板星核（從庫存）。',
+    passiveDesc: '【光帆】：你推入中央星陣放置星核時，可改放在推入牌左右相鄰的牌上（同行左右各 1 格，需在星陣範圍內）。',
     activeName: '日冕',
     activeDesc: '移除中央星陣中所有屬於你的星核，每移除 1 顆得 +2 分。消耗 1 顆面板星核。',
   },
@@ -414,7 +414,7 @@ const CHARACTERS = {
     id: 'ryk', name: '瑞克·哈登', en: 'Ryk Haden', energy: 'anti',
     role: '逆向工程師', gender: '男',
     flavor: '他的專長是讓事情倒回去。',
-    passiveDesc: '【湮滅】：每輪一次，完成觀測任務時，可選擇棄置中央星陣最上方一列（行0）或最左邊一列（列0）中的 1 張牌。',
+    passiveDesc: '【湮滅】：每輪一次，完成觀測任務時，可指定中央星陣中任意 1 張牌棄置，該格依常規補牌。',
     activeName: '逆位',
     activeDesc: '（須在本回合插卡前發動）棄置選定個人星陣全部 9 張牌，並隨機補入 9 張新牌，本次觸發的消除得分 ×2。消耗 1 顆面板星核。',
   },
@@ -422,7 +422,7 @@ const CHARACTERS = {
     id: 'tavi', name: '塔薇·莫絲', en: 'Tavi Moss', energy: 'quan',
     role: '量子生態學家', gender: '女',
     flavor: '她相信宇宙中所有的粒子都互相知道對方的存在。',
-    passiveDesc: '【疊加態】：每回合結束前，若你的手牌中有 2 張以上相同能量的牌，可將其中 1 張設為觀測任務（若任務槽已滿則略過）。',
+    passiveDesc: '【疊加態】：每回合結束時，若中央星陣上沒有你的星核，可放置 1 顆星核至任一星陣。',
     activeName: '量子糾纏',
     activeDesc: '選擇一個帶有你星核的星陣，本回合可將其視為你的星陣進行插卡與消除（消除分數計入你）。消耗 1 顆面板星核。',
   },
@@ -625,7 +625,6 @@ function pushIntoGrid3x3(grid, card, dir, idx) {
 async function askPlaceStarCore(cp, dir, idx) {
   const [r, cv] = getInsertedCell(dir, idx);
   if (cp.ai) {
-    // AI: place core if stock available
     if ((cp.coreStock || 0) > 0) {
       G.centralStarCores[r][cv] = cp.idx;
       cp.coreStock--;
@@ -633,47 +632,64 @@ async function askPlaceStarCore(cp, dir, idx) {
     }
     return;
   }
-  if ((cp.coreStock || 0) <= 0) return; // 無庫存星核
+  if ((cp.coreStock || 0) <= 0) return;
+
+  // 取得可放置的格子：預設為推入格，Luna被動可選左右相鄰，Eo被動可選有他人星核的格子
+  const candidateCells = [{ r, c: cv, label: '推入格 (' + (r+1) + ',' + (cv+1) + ')（預設）' }];
+
+  if (cp.character === 'luna') {
+    // 光帆：可改放左右相鄰格（同行）
+    if (cv - 1 >= 0) candidateCells.push({ r, c: cv-1, label: '左鄰格 (' + (r+1) + ',' + cv + ')【光帆】' });
+    if (cv + 1 <= 2) candidateCells.push({ r, c: cv+1, label: '右鄰格 (' + (r+1) + ',' + (cv+2) + ')【光帆】' });
+  }
+
+  if (cp.character === 'eo') {
+    // 凍結被動：可改放在有其他玩家星核的格子
+    for (let rr = 0; rr < 3; rr++) for (let cc = 0; cc < 3; cc++) {
+      const existing = G.centralStarCores[rr][cc];
+      if (existing !== null && existing !== undefined && existing !== cp.idx) {
+        if (!candidateCells.some(x => x.r === rr && x.c === cc))
+          candidateCells.push({ r: rr, c: cc, label: '(' + (rr+1) + ',' + (cc+1) + ') 覆蓋 ' + G.players[existing].name + ' 的星核【凍結】', cover: existing });
+      }
+    }
+  }
+
+  const doPlace = (tr, tc, coveredOwnerIdx) => {
+    if (coveredOwnerIdx !== undefined) {
+      // Eo覆蓋：記錄被覆蓋的星核，回合開始時移除
+      G.eoCoveredCores = G.eoCoveredCores || [];
+      G.eoCoveredCores.push({ r: tr, c: tc, coveredIdx: coveredOwnerIdx, eoIdx: cp.idx });
+      log('❄ 艾歐【凍結】：覆蓋 ' + G.players[coveredOwnerIdx].name + ' 在 (' + (tr+1) + ',' + (tc+1) + ') 的星核，將於艾歐下回合開始時移除。', 'system');
+    }
+    G.centralStarCores[tr][tc] = cp.idx;
+    cp.coreStock = Math.max(0, (cp.coreStock || 0) - 1);
+    log(cp.name + ' 在中央星陣 (' + (tr+1) + ',' + (tc+1) + ') 放下星核。庫存剩 ' + cp.coreStock + '。');
+  };
+
   return new Promise(resolve => {
     openModal({
       title: '放置星核？',
       body: () => {
         const wrap = el('div', {});
-        wrap.appendChild(el('p', { style: 'color:#e8ecff;margin-bottom:12px' }, '是否在推入的格子放下你的星核？'));
-        wrap.appendChild(el('p', { style: 'color:#a8b5e0;font-size:13px' }, '星核隨牌推移。消除時，你的星核回到你的庫存（敵方星核被消除時你得 +1 分）。你的星核被推出星陣時回到庫存。庫存剩餘：' + (cp.coreStock || 0) + ' 顆。'));
-        // Eo 凍結被動提示
-        const eoFreezeOpt = cp.character === 'eo' ? el('p', { style: 'color:#7ad4ff;font-size:13px;margin-top:8px' }, '【凍結被動】：放置後可選擇凍結此格。') : null;
-        if (eoFreezeOpt) wrap.appendChild(eoFreezeOpt);
+        wrap.appendChild(el('p', { style: 'color:#e8ecff;margin-bottom:8px' }, '是否在中央星陣放下你的星核？庫存剩餘：' + (cp.coreStock||0) + ' 顆'));
+        if (candidateCells.length > 1) {
+          wrap.appendChild(el('p', { style: 'color:#a8b5e0;font-size:12px;margin-bottom:8px' }, '你的被動讓你可以選擇不同位置：'));
+          const btnRow = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
+          candidateCells.forEach(cell => {
+            btnRow.appendChild(el('button', { style: 'padding:8px;cursor:pointer;text-align:left', onclick: () => {
+              closeModal(); doPlace(cell.r, cell.c, cell.cover); resolve();
+            }}, cell.label));
+          });
+          wrap.appendChild(btnRow);
+        }
         return wrap;
       },
-      actions: [
-        { label: '放下星核', primary: true, onclick: async () => {
-          G.centralStarCores[r][cv] = cp.idx;
-          cp.coreStock = Math.max(0, (cp.coreStock || 0) - 1);
-          log(cp.name + ' 在中央星陣 (' + (r+1) + ',' + (cv+1) + ') 放下星核。庫存剩 ' + cp.coreStock + '。');
-          closeModal();
-          // Eo 凍結被動
-          if (cp.character === 'eo') {
-            await new Promise(r2 => {
-              openModal({
-                title: '艾歐【凍結】被動：凍結此格？',
-                bodyHtml: '<p>凍結此格直至你的下一回合結束，凍結格不推移、不列入消除。</p>',
-                actions: [
-                  { label: '凍結', primary: true, onclick: () => {
-                    G.frozenCells = G.frozenCells || [];
-                    G.frozenCells.push({ r, c: cv, ownerIdx: cp.idx });
-                    log('❄ 艾歐凍結中央 (' + (r+1) + ',' + (cv+1) + ')。');
-                    closeModal(); r2();
-                  }},
-                  { label: '不凍結', onclick: () => { closeModal(); r2(); } }
-                ]
-              });
-            });
-          }
-          resolve();
-        }},
-        { label: '不放', onclick: () => { closeModal(); resolve(); } }
-      ]
+      actions: candidateCells.length === 1
+        ? [
+            { label: '放下星核', primary: true, onclick: () => { closeModal(); doPlace(r, cv); resolve(); } },
+            { label: '不放', onclick: () => { closeModal(); resolve(); } }
+          ]
+        : [{ label: '不放', onclick: () => { closeModal(); resolve(); } }]
     });
   });
 }
@@ -690,6 +706,7 @@ function getInsertedCell(dir, idx) {
 
 // ========== 6. 遊戲狀態 ==========
 let G = null;
+const $ = (sel, root = document) => root.querySelector(sel);
 
 let UI = { selectedHand: null, awaiting: null };
 
@@ -741,7 +758,7 @@ function startGame(config) {
     config, players,
     centralGrid: makeEmptyGrid(),
     centralStarCores: [[null,null,null],[null,null,null],[null,null,null]],
-    frozenCells: [], sielVoidGrabs: [],
+    frozenCells: [], sielVoidGrabs: [], eoCoveredCores: [],
     deck, discard: [], reserve: [],
     currentPlayer: 0, log: [],
     turn: null, phase: 'setup',
@@ -965,35 +982,34 @@ async function endTurn() {
   const cp = G.players[G.currentPlayer];
   cp.characterActiveUsed = false; // 每回合重置主動技
 
-  // Tavi「疊加態」被動：手牌中若有2張以上相同能量，可設1張為任務
-  if (cp.character === 'tavi' && !cp.ai) {
-    const energyMap = {};
-    cp.hand.forEach(card => energyMap[card.energy] = (energyMap[card.energy] || 0) + 1);
-    const dupEnergies = Object.keys(energyMap).filter(e => energyMap[e] >= 2);
-    if (dupEnergies.length > 0 && cp.quests.length < effectiveQuestLimit(cp)) {
+  // Tavi「疊加態」被動：回合結束時，若中央星陣無你的星核，可放 1 顆至任一星陣
+  if (cp.character === 'tavi' && !cp.ai && (cp.coreStock || 0) > 0) {
+    const hasCoreCentral = G.centralStarCores.some(row => row.some(v => v === cp.idx));
+    if (!hasCoreCentral) {
       await new Promise(resolve => {
         openModal({
-          title: '塔薇「疊加態」：可將 1 張手牌設為觀測任務',
-          bodyHtml: '<p>你有多張相同能量的手牌，可選擇其中 1 張設為觀測任務。</p>',
-          body: () => {
-            const wrap = el('div', { class: 'pick-grid' });
-            cp.hand.forEach((card, i) => {
-              if (energyMap[card.energy] < 2) return;
-              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-              const div = el('div', { class: 'hand-card', style: '--cc:' + e.color + ';cursor:pointer;',
-                onclick: () => {
-                  cp.quests.push({ energy: card.energy, card });
-                  cp.hand.splice(i, 1);
-                  log('⚛ 塔薇「疊加態」：設 ' + e.name + ' 牌為觀測任務。', 'system');
-                  closeModal(); resolve();
+          title: '塔薇「疊加態」：放置星核',
+          bodyHtml: '<p>中央星陣上沒有你的星核，可放置 1 顆星核至任一星陣（或跳過）。</p>',
+          actions: [
+            { label: '跳過', onclick: () => { closeModal(); resolve(); } },
+            { label: '中央星陣', primary: true, onclick: () => {
+              closeModal();
+              UI.awaiting = {
+                type: 'taviPassivePlace',
+                hint: '塔薇「疊加態」：點選任一星陣格放置星核。',
+                onPickGrid: (grid, r2, c2) => {
+                  const sc = (grid === G.centralGrid) ? G.centralStarCores
+                    : (() => { const pl = G.players.find(p => p.personalGrid === grid); return pl ? pl.personalStarCores : null; })();
+                  if (!sc) return;
+                  sc[r2][c2] = cp.idx;
+                  cp.coreStock = Math.max(0, (cp.coreStock||0) - 1);
+                  log('⚛ 塔薇「疊加態」：放置星核至 ' + (grid === G.centralGrid ? '中央' : '個人') + ' (' + (r2+1) + ',' + (c2+1) + ')。', 'system');
+                  UI.awaiting = null; render(); resolve();
                 }
-              });
-              div.innerHTML = '<div class="icon">' + shapeSVG(card.shape, e.color, 40) + '</div><div class="label">' + e.en.toUpperCase() + '</div><div class="shape-label">' + s.name + '</div>';
-              wrap.appendChild(div);
-            });
-            return wrap;
-          },
-          actions: [{ label: '跳過', onclick: () => { closeModal(); resolve(); } }]
+              };
+              render();
+            }}
+          ]
         });
       });
     }
@@ -1058,6 +1074,22 @@ async function endTurn() {
     G.round++;
   }
   G.turnCount++;
+  // 艾歐「凍結」被動：回合開始時，移除被覆蓋的其他玩家星核
+  {
+    const newCp = G.players[G.currentPlayer];
+    if (newCp && newCp.character === 'eo' && G.eoCoveredCores && G.eoCoveredCores.length > 0) {
+      G.eoCoveredCores = G.eoCoveredCores.filter(entry => {
+        if (entry.eoIdx === newCp.idx) {
+          // 移除被覆蓋玩家的星核（星核已被Eo佔用，返還庫存）
+          const victim = G.players[entry.coveredIdx];
+          if (victim) victim.coreStock = Math.min(5, (victim.coreStock||0)+1);
+          log('❄ 艾歐回合開始：移除 ' + (victim ? victim.name : '？') + ' 在中央 (' + (entry.r+1) + ',' + (entry.c+1) + ') 的星核，返還庫存。', 'system');
+          return false;
+        }
+        return true;
+      });
+    }
+  }
   log('— ' + G.players[G.currentPlayer].name + ' 的回合開始。', 'system');
   render();
   setTimeout(maybeRunAITurn, 500);
@@ -1167,35 +1199,39 @@ async function resolveCascades(grid, cp) {
     turnScore += score;
     // 移除消除的格子
     m.cells.forEach(([r, c]) => { G.discard.push(grid[r][c]); grid[r][c] = null; });
-    // 中央星陣星核：消除時返還星核；卡莉被動：消除敵方星核 +1分/顆
-    if (grid === G.centralGrid) {
-      m.cells.forEach(([r, c2]) => {
-        const ownerIdx = G.centralStarCores[r][c2];
-        if (ownerIdx !== null && ownerIdx !== undefined) {
-          // 被消除的星核返還給擁有者
-          if (ownerIdx === cp.idx) {
-            cp.coreStock = Math.min(5, (cp.coreStock||0)+1);
-            log(`⭐ 你的星核被消除，返還至庫存。`, 'system');
-          } else {
-            const coreOwner = G.players[ownerIdx];
-            if (coreOwner) coreOwner.corePanel = Math.min(2, (coreOwner.corePanel||0)+1);
-            // 卡莉被動「餘燼」：消除敵方星核各 +1 分
-            if (cp.character === 'kali') { cp.score += 1; log(`🔥 卡莉「餘燼」：消除敵方星核 +1 分。`, 'score'); }
-          }
-          G.centralStarCores[r][c2] = null;
-        }
-      });
-    } else {
-      // 個人星陣星核同樣返還
-      const sc = G.players.find(pl => pl.personalGrid === grid);
-      if (sc && sc.personalStarCores) {
+    // 星核消除結算（適用任意星陣）
+    // 規則：星核被消除時，若為星核擁有者的回合 → 返回庫存並抽1張牌；否則 → 進面板（面板滿則回庫存）
+    // 卡莉被動「餘燼」：消除非自己的星核各 +1 分
+    {
+      const scArray = (grid === G.centralGrid)
+        ? G.centralStarCores
+        : (() => { const owner = G.players.find(pl => pl.personalGrid === grid); return owner ? owner.personalStarCores : null; })();
+      if (scArray) {
         m.cells.forEach(([r, c2]) => {
-          const ownerIdx = sc.personalStarCores[r][c2];
-          if (ownerIdx !== null && ownerIdx !== undefined) {
-            const coreOwner = G.players[ownerIdx];
-            if (coreOwner) { if (ownerIdx === cp.idx) coreOwner.coreStock = Math.min(5,(coreOwner.coreStock||0)+1); else coreOwner.corePanel = Math.min(2,(coreOwner.corePanel||0)+1); }
-            sc.personalStarCores[r][c2] = null;
+          const ownerIdx = scArray[r][c2];
+          if (ownerIdx === null || ownerIdx === undefined) return;
+          const coreOwner = G.players[ownerIdx];
+          if (!coreOwner) { scArray[r][c2] = null; return; }
+          const isOwnerTurn = (ownerIdx === G.currentPlayer);
+          if (isOwnerTurn) {
+            // 自己的回合：星核回庫存，抽 1 張牌
+            coreOwner.coreStock = Math.min(5, (coreOwner.coreStock||0) + 1);
+            const drawn = drawN(G, 1);
+            if (drawn.length) { coreOwner.hand.push(drawn[0]); log(`⭐ ${coreOwner.name} 星核消除（自己回合）：回庫存並抽 1 張牌。`, 'system'); }
+            else { log(`⭐ ${coreOwner.name} 星核消除（自己回合）：回庫存。`, 'system'); }
+          } else {
+            // 他人回合：星核進面板；面板已滿則回庫存
+            if ((coreOwner.corePanel||0) < 2) {
+              coreOwner.corePanel = (coreOwner.corePanel||0) + 1;
+              log(`⭐ ${coreOwner.name} 星核消除（他人回合）：進面板充能（面板：${coreOwner.corePanel}）。`, 'system');
+            } else {
+              coreOwner.coreStock = Math.min(5, (coreOwner.coreStock||0) + 1);
+              log(`⭐ ${coreOwner.name} 星核消除（他人回合，面板已滿）：回庫存。`, 'system');
+            }
+            // 卡莉被動「餘燼」：消除非自己星核 +1 分
+            if (cp.character === 'kali' && ownerIdx !== cp.idx) { cp.score += 1; log(`🔥 卡莉「餘燼」：消除敵方星核 +1 分。`, 'score'); }
           }
+          scArray[r][c2] = null;
         });
       }
     }
@@ -1286,10 +1322,6 @@ async function handlePushedOut(card, cp, sourceGrid) {
           cp.hand.push(card);
           log(`${cp.name} 將 ${cardLabel(card)} 收入手牌。`);
           closeModal(); render();
-          // 塔薇被動
-          if (cp.character === 'tavi' && cp.quests.length < effectiveQuestLimit(cp) && cp.hand.length > 0) {
-            await taviPassivePlaceQuest(cp);
-          }
           resolve();
         });
         wrap.appendChild(handDiv);
@@ -1491,40 +1523,6 @@ async function blackAbility(cp, sourceGrid) {
   });
 }
 
-async function taviPassivePlaceQuest(cp) {
-  return new Promise(resolve => {
-    const qLim = effectiveQuestLimit(cp);
-    if (cp.quests.length >= qLim || cp.hand.length === 0) { resolve(); return; }
-    openModal({
-      title: '塔薇被動：可將手牌設為任務',
-      body: () => {
-        const wrap = el('div', {});
-        wrap.appendChild(el('p', { class: 'muted small' }, '可選 1 張手牌設為觀測任務（可跳過）'));
-        const grid = el('div', { class: 'pick-grid' });
-        cp.hand.forEach((card, i) => {
-          const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-          const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-            onclick: () => {
-              if (cp.quests.length < effectiveQuestLimit(cp)) {
-                const taken = cp.hand.splice(i, 1)[0];
-                cp.quests.push({ energy: taken.energy, card: taken });
-                log(`${cp.name} 塔薇被動：設置 ${cardLabel(taken)} 為任務。`);
-              }
-              closeModal(); render(); resolve();
-            }
-          });
-          div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div>
-                           <div class="label">${e.en.toUpperCase()}</div>
-                           <div class="shape-label">${s.name}</div>`;
-          grid.appendChild(div);
-        });
-        wrap.appendChild(grid);
-        return wrap;
-      },
-      actions: [{ label: '跳過', onclick: () => resolve() }]
-    });
-  });
-}
 
 
 // ========== 13. 任務結算 ==========
@@ -1537,76 +1535,58 @@ async function completeQuest(cp, idx) {
   if (G.turn) G.turn.questsCompleted = (G.turn.questsCompleted || 0) + 1;
   log('🎯 ' + cp.name + ' 完成「' + ENERGY_BY[q.energy].name + '」任務 +' + Q.score + ' 分！', 'score');
 
-  // V4 任務完成獎勵：抽 1 張牌；若面板星核 < 2 則補充 1 顆（僅露娜被動 光帆；其他角色只抽牌）
+  // V4 任務完成獎勵：所有玩家抽 1 張牌，可自庫存補 1 顆星核至面板
   (async () => {
     const drawn = drawN(G, 1);
-    if (drawn.length) {
-      cp.hand.push(drawn[0]);
-      log(cp.name + ' 完成任務額外抽 1 張牌。', 'system');
+    if (drawn.length) { cp.hand.push(drawn[0]); log(cp.name + ' 完成任務抽 1 張牌。', 'system'); }
+    if ((cp.corePanel || 0) < 2 && (cp.coreStock || 0) > 0) {
+      cp.corePanel = (cp.corePanel || 0) + 1;
+      cp.coreStock = (cp.coreStock || 0) - 1;
+      log('⭐ ' + cp.name + ' 完成任務：面板星核 +1（面板：' + cp.corePanel + '，庫存：' + cp.coreStock + '）。', 'system');
     }
-    // 露娜「光帆」被動
-    if (cp.character === 'luna' && !cp.ai) {
-      if ((cp.corePanel || 0) < 2 && (cp.coreStock || 0) > 0) {
-        cp.corePanel = (cp.corePanel || 0) + 1;
-        cp.coreStock = (cp.coreStock || 0) - 1;
-        log('🌟 露娜「光帆」：面板補充 1 顆星核（面板：' + cp.corePanel + '，庫存：' + cp.coreStock + '）。', 'system');
-      }
-    }
-    // 瑞克「湮滅」被動：每輪一次，可棄置中央星陣行0或列0的1張牌
+    // 瑞克「湮滅」：每輪一次，完成任務時可棄置中央星陣任意 1 張牌
     if (cp.character === 'ryk' && !cp.ai && !cp.rykAnnihilateUsed) {
-      const hasCards = G.centralGrid[0].some(card => card !== null) || G.centralGrid.some(row => row[0] !== null);
-      if (hasCards) {
+      const allCards = [];
+      for (let rr = 0; rr < 3; rr++) for (let cc = 0; cc < 3; cc++) { if (G.centralGrid[rr][cc]) allCards.push({r:rr,c:cc}); }
+      if (allCards.length > 0) {
         await new Promise(resolve => {
           openModal({
-            title: '瑞克「湮滅」：棄置中央星陣邊緣 1 張牌？',
-            bodyHtml: '<p>可選擇中央星陣第 1 行（行0）或第 1 列（列0）中的 1 張牌棄置（每輪限一次）。</p>',
-            actions: [
-              { label: '跳過', onclick: () => { closeModal(); resolve(); } },
-              { label: '棄置行0', primary: true, onclick: () => {
-                closeModal();
-                openModal({
-                  title: '選擇行0的格子（列0-2）',
-                  body: () => {
-                    const wrap = el('div', { style: 'display:flex;gap:8px' });
-                    [0,1,2].forEach(cv => {
-                      const card = G.centralGrid[0][cv];
-                      if (!card) return;
-                      const e = ENERGY_BY[card.energy];
-                      wrap.appendChild(el('button', { style: '--cc:' + e.color + ';padding:10px;cursor:pointer', onclick: () => {
-                        G.discard.push(card); G.centralGrid[0][cv] = null;
-                        if (G.centralStarCores[0][cv] !== null) { const co = G.players[G.centralStarCores[0][cv]]; if(co) co.coreStock=Math.min(5,(co.coreStock||0)+1); G.centralStarCores[0][cv]=null; }
-                        cp.rykAnnihilateUsed = true;
-                        log('⚡ 瑞克「湮滅」：棄置中央 (1,' + (cv+1) + ')。', 'system');
-                        closeModal(); resolve();
-                      }}, (cv+1) + '列'));
-                    });
-                    return wrap;
-                  }, actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
+            title: '瑞克「湮滅」：棄置中央星陣 1 張牌？',
+            bodyHtml: '<p>可指定中央星陣中任意 1 張牌棄置，該格依常規補牌（每輪限一次）。</p>',
+            body: () => {
+              const wrap = el('div', { class: 'pick-grid' });
+              allCards.forEach(({r: rr, c: cc}) => {
+                const card = G.centralGrid[rr][cc];
+                const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+                const div = el('div', { class: 'hand-card', style: '--cc:' + e.color + ';cursor:pointer;',
+                  onclick: () => {
+                    G.discard.push(card); G.centralGrid[rr][cc] = null;
+                    // 處理該格星核
+                    const coreOwner = G.centralStarCores[rr][cc];
+                    if (coreOwner !== null && coreOwner !== undefined) {
+                      const co = G.players[coreOwner];
+                      if (co) co.coreStock = Math.min(5, (co.coreStock||0)+1);
+                      G.centralStarCores[rr][cc] = null;
+                    }
+                    // 依常規補牌
+                    let tries = 0;
+                    while (tries++ < 30) {
+                      const d = drawN(G,1); if (!d.length) break;
+                      G.centralGrid[rr][cc] = d[0];
+                      if (findMatchesInGrid(G.centralGrid).length > 0) { G.discard.push(G.centralGrid[rr][cc]); G.centralGrid[rr][cc] = null; }
+                      else break;
+                    }
+                    cp.rykAnnihilateUsed = true;
+                    log('⚡ 瑞克「湮滅」：棄置中央 (' + (rr+1) + ',' + (cc+1) + ')。', 'system');
+                    closeModal(); resolve();
+                  }
                 });
-              }},
-              { label: '棄置列0', onclick: () => {
-                closeModal();
-                openModal({
-                  title: '選擇列0的格子（行0-2）',
-                  body: () => {
-                    const wrap = el('div', { style: 'display:flex;gap:8px' });
-                    [0,1,2].forEach(r => {
-                      const card = G.centralGrid[r][0];
-                      if (!card) return;
-                      const e = ENERGY_BY[card.energy];
-                      wrap.appendChild(el('button', { style: '--cc:' + e.color + ';padding:10px;cursor:pointer', onclick: () => {
-                        G.discard.push(card); G.centralGrid[r][0] = null;
-                        if (G.centralStarCores[r][0] !== null) { const co = G.players[G.centralStarCores[r][0]]; if(co) co.coreStock=Math.min(5,(co.coreStock||0)+1); G.centralStarCores[r][0]=null; }
-                        cp.rykAnnihilateUsed = true;
-                        log('⚡ 瑞克「湮滅」：棄置中央 (' + (r+1) + ',1)。', 'system');
-                        closeModal(); resolve();
-                      }}, (r+1) + '行'));
-                    });
-                    return wrap;
-                  }, actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
-                });
-              }}
-            ]
+                div.innerHTML = '<div class="icon">' + shapeSVG(card.shape, e.color, 36) + '</div><div class="label">' + e.en.toUpperCase() + '</div><div style="font-size:10px;color:#a8b5e0">(' + (rr+1) + ',' + (cc+1) + ')</div>';
+                wrap.appendChild(div);
+              });
+              return wrap;
+            },
+            actions: [{ label: '跳過', onclick: () => { closeModal(); resolve(); } }]
           });
         });
       }
@@ -2277,7 +2257,7 @@ function showRules() {
       <p>每位玩家有<b>面板星核</b>（0-2 顆）和<b>庫存星核</b>（0-5 顆）。<br>
          推牌進入中央或個人星陣時，可花費 1 顆<b>庫存星核</b>放置到推入格。<br>
          星核隨牌移動；牌被推出時，你的星核歸還庫存。<br>
-         消除時：<b>你的星核</b>返還庫存；<b>對手的星核</b>返還給對手的面板（+1顆）。<br>
+         消除時：<b>你的回合</b>被消 → 星核回庫存並抽 1 張牌；<b>他人回合</b>被消 → 星核進你的面板（面板滿則回庫存）。<br>
          主動技每回合限用 1 次，花費 1 顆<b>面板星核</b>。</p>
       <h3>每回合流程</h3>
       <p>1. 可發動 Void Walker 主動能力（花費 1 面板星核，每回合限 1 次）。<br>
