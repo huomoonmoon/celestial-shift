@@ -382,49 +382,49 @@ const CHARACTERS = {
     id: 'kali', name: '卡莉·薩恩', en: 'Kali Sarn', energy: 'pyro',
     role: '星際傭兵', gender: '女',
     flavor: '曾是殖民地防衛隊的爆破專家，一場意外讓她的神經系統與 Pyro 能量永久共鳴。',
-    passiveDesc: '消除超過三個時，從棄牌堆取任意 1 張加入手牌。',
-    activeName: '引爆',
-    activeDesc: '本回合所有消除分數 ×2。',
+    passiveDesc: '【餘燼】：推入或消除使對手星核離開星陣時，得 +1 分。',
+    activeName: '連鎖引爆',
+    activeDesc: '選任意星陣的任意 1 行或 1 列，棄置該行/列全部牌，並重新補牌（不觸發消除）。消耗 1 顆面板星核。',
   },
   eo: {
     id: 'eo', name: '艾歐·貝納', en: 'Eo Venna', energy: 'cryo',
     role: '低溫物理學家', gender: '男',
     flavor: '在絕對零度的研究站獨自工作了七年，學會了讓時間慢下來。',
-    passiveDesc: '每回合可將預備區任意 1～3 張棄入棄牌堆，從牌庫補入等量牌。',
-    activeName: '引導',
-    activeDesc: '下一次消除的補牌改從預備區選擇，可觸發連鎖消除。',
+    passiveDesc: '【凍結】：在中央星陣放置星核時，可選擇將該格「凍結」——被凍結的格子不會被推移，亦不列入消除判定，直至你的下一回合結束。',
+    activeName: '絕對零度',
+    activeDesc: '指定中央星陣中的 1 個格子，對其施加凍結效果，持續至你的下一回合結束。消耗 1 顆面板星核。',
   },
   siel: {
     id: 'siel', name: '席爾·渥恩', en: 'Siel Vorn', energy: 'dark',
     role: '虛空預言者', gender: '不明',
     flavor: '沒有人知道席爾從哪裡來。他們說的話總是提前一步。',
-    passiveDesc: '觀測任務上限 +3（最多 6 個），手牌上限 +3（最多 9 張）。棄牌換牌時可從棄牌堆頂取牌。',
-    activeName: '虛空召喚',
-    activeDesc: '從棄牌堆取任意 1 張，推入任意星陣（個人或中央）的任意邊緣。',
+    passiveDesc: '【虛空汲取】：每次補牌時，可選擇從自己個人星陣中取出 1 張牌加入手牌，該空格延遲至本回合結束後才補牌。',
+    activeName: '虛空掠奪',
+    activeDesc: '選擇任意 1 名對手的個人星陣中的 1 張牌，將其棄置，該空格延遲至對手的回合結束後才補牌。消耗 1 顆面板星核。',
   },
   luna: {
     id: 'luna', name: '露娜·歐希', en: 'Luna Oshi', energy: 'solar',
     role: '恆星航行者', gender: '女',
     flavor: '以太陽帆橫渡過四個星系，從不攜帶武器。',
-    passiveDesc: '完成任務時，可棄 3 張手牌，從預備區放置 1 張牌作為任務。',
-    activeName: '輻射爆',
-    activeDesc: '移除所有觀測任務，重抽（移除數+1）張新任務。',
+    passiveDesc: '【光帆】：完成觀測任務時，額外抽 1 張牌，若此時你的面板星核少於 2 顆，則補充 1 顆面板星核（從庫存）。',
+    activeName: '日冕',
+    activeDesc: '移除中央星陣中所有屬於你的星核，每移除 1 顆得 +2 分。消耗 1 顆面板星核。',
   },
   ryk: {
     id: 'ryk', name: '瑞克·哈登', en: 'Ryk Haden', energy: 'anti',
     role: '逆向工程師', gender: '男',
     flavor: '他的專長是讓事情倒回去。',
-    passiveDesc: '棄牌換牌時可棄 2 張，從預備區與牌庫頂自由分配取 2 張。',
-    activeName: '置換',
-    activeDesc: '從牌庫抽 1 張加入手牌，並將手牌任 1 張與星陣中任 1 張互換。',
+    passiveDesc: '【湮滅】：每輪一次，完成觀測任務時，可選擇棄置中央星陣最上方一列（行0）或最左邊一列（列0）中的 1 張牌。',
+    activeName: '逆位',
+    activeDesc: '（須在本回合插卡前發動）棄置選定個人星陣全部 9 張牌，並隨機補入 9 張新牌，本次觸發的消除得分 ×2。消耗 1 顆面板星核。',
   },
   tavi: {
     id: 'tavi', name: '塔薇·莫絲', en: 'Tavi Moss', energy: 'quan',
     role: '量子生態學家', gender: '女',
     flavor: '她相信宇宙中所有的粒子都互相知道對方的存在。',
-    passiveDesc: '手牌收到被推出的牌時，可同時將手牌中任意 1 張設為任務。',
-    activeName: '疊加',
-    activeDesc: '從棄牌堆/牌庫/預備區合計取 3 張，其中 2 張可放置為任務。',
+    passiveDesc: '【疊加態】：每回合結束前，若你的手牌中有 2 張以上相同能量的牌，可將其中 1 張設為觀測任務（若任務槽已滿則略過）。',
+    activeName: '量子糾纏',
+    activeDesc: '選擇一個帶有你星核的星陣，本回合可將其視為你的星陣進行插卡與消除（消除分數計入你）。消耗 1 顆面板星核。',
   },
 };
 
@@ -504,18 +504,23 @@ function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 function findMatchesInGrid(grid) {
   const used = new Array(9).fill(false);
   const results = [];
+  // Build frozen set for central grid
+  const frozenSet = new Set();
+  if (grid === G.centralGrid && G.frozenCells) {
+    G.frozenCells.forEach(fc => frozenSet.add(fc.r * 3 + fc.c));
+  }
   for (const pat of ELIM_PATTERNS) {
     let energy = null, ok = true;
-    for (const [r, c] of pat.cells) {
-      if (used[r * 3 + c]) { ok = false; break; }
-      const card = grid[r] && grid[r][c];
+    for (const [r, cv] of pat.cells) {
+      if (used[r * 3 + cv] || frozenSet.has(r * 3 + cv)) { ok = false; break; }
+      const card = grid[r] && grid[r][cv];
       if (!card) { ok = false; break; }
       if (energy === null) energy = card.energy;
       else if (card.energy !== energy) { ok = false; break; }
     }
     if (ok && energy !== null) {
       results.push({ ...pat, energy, cells: pat.cells.slice() });
-      for (const [r, c] of pat.cells) used[r * 3 + c] = true;
+      for (const [r, cv] of pat.cells) used[r * 3 + cv] = true;
     }
   }
   return results;
@@ -578,62 +583,102 @@ function fillGrid(grid) {
 // 推入 3×3 星陣（dir: down/up/left/right, idx: col for down/up, row for left/right）
 function pushIntoGrid3x3(grid, card, dir, idx) {
   const isCentral = (grid === G.centralGrid);
-  const m = isCentral ? G.centralMarkers : null;
+  // determine which star-core array to shift alongside
+  const sc = isCentral ? G.centralStarCores
+    : (() => { const owner = G.players.find(p => p.personalGrid === grid); return owner ? owner.personalStarCores : null; })();
   let pushedOut = null;
+  let pushedOutCore = null;
   if (dir === 'down') {
-    pushedOut = grid[2][idx];
-    for (let r = 2; r > 0; r--) { grid[r][idx] = grid[r-1][idx]; if (m) m[r][idx] = m[r-1][idx]; }
-    grid[0][idx] = card;
-    if (m) m[0][idx] = null; // 新推入格無標記（之後由 onPushClick 詢問是否放）
+    pushedOut = grid[2][idx]; pushedOutCore = sc ? sc[2][idx] : null;
+    for (let r = 2; r > 0; r--) { grid[r][idx] = grid[r-1][idx]; if (sc) sc[r][idx] = sc[r-1][idx]; }
+    grid[0][idx] = card; if (sc) sc[0][idx] = null;
   } else if (dir === 'up') {
-    pushedOut = grid[0][idx];
-    for (let r = 0; r < 2; r++) { grid[r][idx] = grid[r+1][idx]; if (m) m[r][idx] = m[r+1][idx]; }
-    grid[2][idx] = card;
-    if (m) m[2][idx] = null;
+    pushedOut = grid[0][idx]; pushedOutCore = sc ? sc[0][idx] : null;
+    for (let r = 0; r < 2; r++) { grid[r][idx] = grid[r+1][idx]; if (sc) sc[r][idx] = sc[r+1][idx]; }
+    grid[2][idx] = card; if (sc) sc[2][idx] = null;
   } else if (dir === 'right') {
-    pushedOut = grid[idx][2];
-    for (let c = 2; c > 0; c--) { grid[idx][c] = grid[idx][c-1]; if (m) m[idx][c] = m[idx][c-1]; }
-    grid[idx][0] = card;
-    if (m) m[idx][0] = null;
+    pushedOut = grid[idx][2]; pushedOutCore = sc ? sc[idx][2] : null;
+    for (let cv = 2; cv > 0; cv--) { grid[idx][cv] = grid[idx][cv-1]; if (sc) sc[idx][cv] = sc[idx][cv-1]; }
+    grid[idx][0] = card; if (sc) sc[idx][0] = null;
   } else if (dir === 'left') {
-    pushedOut = grid[idx][0];
-    for (let c = 0; c < 2; c++) { grid[idx][c] = grid[idx][c+1]; if (m) m[idx][c] = m[idx][c+1]; }
-    grid[idx][2] = card;
-    if (m) m[idx][2] = null;
+    pushedOut = grid[idx][0]; pushedOutCore = sc ? sc[idx][0] : null;
+    for (let cv = 0; cv < 2; cv++) { grid[idx][cv] = grid[idx][cv+1]; if (sc) sc[idx][cv] = sc[idx][cv+1]; }
+    grid[idx][2] = card; if (sc) sc[idx][2] = null;
   }
-  return pushedOut; // null if the spot was empty (edge case)
+  // Handle pushed-out star core: if own core, goes to own stock; if enemy core, goes to enemy stock + Kali 餘燼
+  if (pushedOutCore !== null && pushedOutCore !== undefined) {
+    const coreOwner = G.players[pushedOutCore];
+    if (coreOwner) {
+      coreOwner.coreStock = Math.min(5, (coreOwner.coreStock || 0) + 1);
+      // 卡莉「餘燼」：推出敵方星核得 +1 分
+      const currentP = G.players[G.currentPlayer];
+      if (currentP && currentP.character === 'kali' && pushedOutCore !== currentP.idx) {
+        currentP.score += 1;
+        log('🔥 卡莉「餘燼」：推出敵方星核 +1 分！', 'score');
+      }
+    }
+  }
+  return pushedOut;
 }
 
 // 推入中央後，詢問玩家是否放下標記（isCentralPush: 推入的行/列方向+idx，用來找新插入格）
-async function askPlaceMarker(cp, dir, idx) {
+async function askPlaceStarCore(cp, dir, idx) {
+  const [r, cv] = getInsertedCell(dir, idx);
   if (cp.ai) {
-    // AI 永遠放標記
-    const [r, c] = getInsertedCell(dir, idx);
-    G.centralMarkers[r][c] = cp.idx;
-    log(`${cp.name} 在中央星陣 (${r+1},${c+1}) 放下標記。`);
+    // AI: place core if stock available
+    if ((cp.coreStock || 0) > 0) {
+      G.centralStarCores[r][cv] = cp.idx;
+      cp.coreStock--;
+      log(cp.name + ' 在中央星陣 (' + (r+1) + ',' + (cv+1) + ') 放下星核。');
+    }
     return;
   }
+  if ((cp.coreStock || 0) <= 0) return; // 無庫存星核
   return new Promise(resolve => {
     openModal({
-      title: '中央星陣標記',
+      title: '放置星核？',
       body: () => {
         const wrap = el('div', {});
-        wrap.appendChild(el('p', { style: 'color:#e8ecff;margin-bottom:12px' }, '是否在推入的格子放下你的玩家標記？'));
-        wrap.appendChild(el('p', { style: 'color:#a8b5e0;font-size:13px' }, '消除時，你的標記每個額外得 +2 分。標記隨牌消失。'));
+        wrap.appendChild(el('p', { style: 'color:#e8ecff;margin-bottom:12px' }, '是否在推入的格子放下你的星核？'));
+        wrap.appendChild(el('p', { style: 'color:#a8b5e0;font-size:13px' }, '星核隨牌推移。消除時，你的星核回到你的庫存（敵方星核被消除時你得 +1 分）。你的星核被推出星陣時回到庫存。庫存剩餘：' + (cp.coreStock || 0) + ' 顆。'));
+        // Eo 凍結被動提示
+        const eoFreezeOpt = cp.character === 'eo' ? el('p', { style: 'color:#7ad4ff;font-size:13px;margin-top:8px' }, '【凍結被動】：放置後可選擇凍結此格。') : null;
+        if (eoFreezeOpt) wrap.appendChild(eoFreezeOpt);
         return wrap;
       },
       actions: [
-        { label: '放下標記', primary: true, onclick: () => {
-          const [r, c] = getInsertedCell(dir, idx);
-          G.centralMarkers[r][c] = cp.idx;
-          log(`${cp.name} 在中央星陣 (${r+1},${c+1}) 放下標記。`);
-          closeModal(); resolve();
+        { label: '放下星核', primary: true, onclick: async () => {
+          G.centralStarCores[r][cv] = cp.idx;
+          cp.coreStock = Math.max(0, (cp.coreStock || 0) - 1);
+          log(cp.name + ' 在中央星陣 (' + (r+1) + ',' + (cv+1) + ') 放下星核。庫存剩 ' + cp.coreStock + '。');
+          closeModal();
+          // Eo 凍結被動
+          if (cp.character === 'eo') {
+            await new Promise(r2 => {
+              openModal({
+                title: '艾歐【凍結】被動：凍結此格？',
+                bodyHtml: '<p>凍結此格直至你的下一回合結束，凍結格不推移、不列入消除。</p>',
+                actions: [
+                  { label: '凍結', primary: true, onclick: () => {
+                    G.frozenCells = G.frozenCells || [];
+                    G.frozenCells.push({ r, c: cv, ownerIdx: cp.idx });
+                    log('❄ 艾歐凍結中央 (' + (r+1) + ',' + (cv+1) + ')。');
+                    closeModal(); r2();
+                  }},
+                  { label: '不凍結', onclick: () => { closeModal(); r2(); } }
+                ]
+              });
+            });
+          }
+          resolve();
         }},
         { label: '不放', onclick: () => { closeModal(); resolve(); } }
       ]
     });
   });
 }
+// alias for backward compat
+const askPlaceMarker = askPlaceStarCore;
 
 function getInsertedCell(dir, idx) {
   if (dir === 'down') return [0, idx];
@@ -673,12 +718,12 @@ function log(text, type) {
 }
 
 function initTurnState() {
-  G.turn = { eliminations: 0, eliminationScore: 0, maxElimSingle: 0, pushed: false, swapsUsed: 0, questsCompleted: 0, kaliDouble: false };
+  G.turn = { eliminations: 0, eliminationScore: 0, maxElimSingle: 0, pushed: false, swapsUsed: 0, questsCompleted: 0, rykDoubleScore: false, taviExtraGrid: null };
   return G.turn;
 }
 
-function effectiveHandLimit(p) { return 6 + (p.character === 'siel' ? 3 : 0); }
-function effectiveQuestLimit(p) { return 3 + (p.character === 'siel' ? 3 : 0); }
+function effectiveHandLimit(p) { return 6; }
+function effectiveQuestLimit(p) { return 3; }
 
 function startGame(config) {
   const playerColors = ['#5ec5ff', '#ff8a6a', '#b58aff', '#4dd4ac'];
@@ -686,13 +731,17 @@ function startGame(config) {
     idx: i, name: p.name, ai: p.ai, color: playerColors[i],
     score: 0, hand: [], quests: [], completedQuests: 0,
     personalGrid: null, character: null,
-    characterActiveUsed: false, eoPassiveUsedThisTurn: false,
+    characterActiveUsed: false,
+    corePanel: 1, coreStock: 5,
+    personalStarCores: [[null,null,null],[null,null,null],[null,null,null]],
+    rykAnnihilateUsed: false,
   }));
   const deck = shuffle(buildDeck());
   G = {
     config, players,
     centralGrid: makeEmptyGrid(),
-    centralMarkers: [[null,null,null],[null,null,null],[null,null,null]],
+    centralStarCores: [[null,null,null],[null,null,null],[null,null,null]],
+    frozenCells: [], sielVoidGrabs: [],
     deck, discard: [], reserve: [],
     currentPlayer: 0, log: [],
     turn: null, phase: 'setup',
@@ -912,11 +961,78 @@ function buildSetupPickBody(p, five, state, update) {
 
 // ========== 9. 回合流程 ==========
 async function endTurn() {
-  if (UI.awaiting) return; // 能力選擇進行中，不允許結束回合
+  if (UI.awaiting) return;
   const cp = G.players[G.currentPlayer];
+  cp.characterActiveUsed = false; // 每回合重置主動技
+
+  // Tavi「疊加態」被動：手牌中若有2張以上相同能量，可設1張為任務
+  if (cp.character === 'tavi' && !cp.ai) {
+    const energyMap = {};
+    cp.hand.forEach(card => energyMap[card.energy] = (energyMap[card.energy] || 0) + 1);
+    const dupEnergies = Object.keys(energyMap).filter(e => energyMap[e] >= 2);
+    if (dupEnergies.length > 0 && cp.quests.length < effectiveQuestLimit(cp)) {
+      await new Promise(resolve => {
+        openModal({
+          title: '塔薇「疊加態」：可將 1 張手牌設為觀測任務',
+          bodyHtml: '<p>你有多張相同能量的手牌，可選擇其中 1 張設為觀測任務。</p>',
+          body: () => {
+            const wrap = el('div', { class: 'pick-grid' });
+            cp.hand.forEach((card, i) => {
+              if (energyMap[card.energy] < 2) return;
+              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
+              const div = el('div', { class: 'hand-card', style: '--cc:' + e.color + ';cursor:pointer;',
+                onclick: () => {
+                  cp.quests.push({ energy: card.energy, card });
+                  cp.hand.splice(i, 1);
+                  log('⚛ 塔薇「疊加態」：設 ' + e.name + ' 牌為觀測任務。', 'system');
+                  closeModal(); resolve();
+                }
+              });
+              div.innerHTML = '<div class="icon">' + shapeSVG(card.shape, e.color, 40) + '</div><div class="label">' + e.en.toUpperCase() + '</div><div class="shape-label">' + s.name + '</div>';
+              wrap.appendChild(div);
+            });
+            return wrap;
+          },
+          actions: [{ label: '跳過', onclick: () => { closeModal(); resolve(); } }]
+        });
+      });
+    }
+  }
+
   // 結束回合後從預備區選 1 張
   await pickFromReserve(cp);
   refillReserve();
+
+  // 席爾虛空抓取延遲補牌：本回合被掠奪格，現在補牌
+  if (G.sielVoidGrabs && G.sielVoidGrabs.length > 0) {
+    G.sielVoidGrabs = G.sielVoidGrabs.filter(grab => {
+      if (grab.targetPlayerIdx === cp.idx) {
+        const tp = G.players[grab.targetPlayerIdx];
+        if (tp && tp.personalGrid[grab.r][grab.c] === null) {
+          let tries = 0;
+          while (tries++ < 30) {
+            const d = drawN(G, 1); if (!d.length) break;
+            tp.personalGrid[grab.r][grab.c] = d[0];
+            if (findMatchesInGrid(tp.personalGrid).length > 0) { G.discard.push(tp.personalGrid[grab.r][grab.c]); tp.personalGrid[grab.r][grab.c] = null; }
+            else break;
+          }
+        }
+        return false; // 已補牌，移除
+      }
+      return true; // 其他玩家的延遲補牌保留
+    });
+  }
+
+  // 解除已過期凍結格（屬於當前玩家的）
+  if (G.frozenCells) {
+    G.frozenCells = G.frozenCells.filter(fc => fc.ownerIdx !== cp.idx);
+  }
+
+  // 瑞克「湮滅」重置（每輪一次 = firstPlayer回合時重置）
+  if (G.currentPlayer === G.firstPlayer) {
+    G.players.forEach(p => { p.rykAnnihilateUsed = false; });
+  }
+
   // 手牌超限則丟牌
   const lim = effectiveHandLimit(cp);
   if (cp.hand.length > lim) {
@@ -930,10 +1046,8 @@ async function endTurn() {
   G.turn = null;
   G.awaitingEndTurn = false;
   UI.selectedHand = null;
-  cp.eoPassiveUsedThisTurn = false;
   G.currentPlayer = (G.currentPlayer + 1) % G.players.length;
   if (G.currentPlayer === 0) {
-    // 本輪結束：檢查勝利條件
     if (G.gameEndTriggered) {
       const sorted = [...G.players].sort((a, b) => b.score - a.score || b.completedQuests - a.completedQuests);
       G.winnerIdx = sorted[0].idx;
@@ -944,13 +1058,22 @@ async function endTurn() {
     G.round++;
   }
   G.turnCount++;
-  log(`— ${G.players[G.currentPlayer].name} 的回合開始。`, 'system');
+  log('— ' + G.players[G.currentPlayer].name + ' 的回合開始。', 'system');
   render();
   setTimeout(maybeRunAITurn, 500);
 }
 
 async function pickFromReserve(cp) {
   if (!G.reserve || G.reserve.length === 0) return;
+  // 席爾被動「虛空汲取」：可選從個人星陣格取牌替代預備區
+  if (cp.character === 'siel' && !cp.ai) {
+    const taken = await sielVoidDraw(cp);
+    if (taken !== undefined) { // null means "use normal reserve", a card means "took from grid"
+      if (taken !== null) { if (cp.hand.length < effectiveHandLimit(cp)) cp.hand.push(taken); else G.discard.push(taken); }
+      else { /* fall through to normal reserve pick below */ }
+      if (taken !== null) return;
+    }
+  }
   if (cp.ai) {
     const picked = G.reserve.shift();
     if (cp.hand.length < effectiveHandLimit(cp)) cp.hand.push(picked);
@@ -1035,7 +1158,7 @@ async function resolveCascades(grid, cp) {
   let turnScore = 0;
   for (const m of matches) {
     let score = m.score;
-    if (G.turn.kaliDouble) score *= 2;
+    if (G.turn.rykDoubleScore) score *= 2;
     const extra = score > m.score ? ` ×2` : '';
     log(`✨ ${m.name}（${ENERGY_BY[m.energy].name}）+${score}${extra}`, 'score');
     G.turn.eliminations++;
@@ -1044,50 +1167,36 @@ async function resolveCascades(grid, cp) {
     turnScore += score;
     // 移除消除的格子
     m.cells.forEach(([r, c]) => { G.discard.push(grid[r][c]); grid[r][c] = null; });
-    // 中央星陣標記加分
+    // 中央星陣星核：消除時返還星核；卡莉被動：消除敵方星核 +1分/顆
     if (grid === G.centralGrid) {
-      const markerBonus = {};
-      m.cells.forEach(([r, c]) => {
-        const ownerIdx = G.centralMarkers[r][c];
+      m.cells.forEach(([r, c2]) => {
+        const ownerIdx = G.centralStarCores[r][c2];
         if (ownerIdx !== null && ownerIdx !== undefined) {
-          markerBonus[ownerIdx] = (markerBonus[ownerIdx] || 0) + 2;
-          G.centralMarkers[r][c] = null;
+          // 被消除的星核返還給擁有者
+          if (ownerIdx === cp.idx) {
+            cp.coreStock = Math.min(5, (cp.coreStock||0)+1);
+            log(`⭐ 你的星核被消除，返還至庫存。`, 'system');
+          } else {
+            const coreOwner = G.players[ownerIdx];
+            if (coreOwner) coreOwner.corePanel = Math.min(2, (coreOwner.corePanel||0)+1);
+            // 卡莉被動「餘燼」：消除敵方星核各 +1 分
+            if (cp.character === 'kali') { cp.score += 1; log(`🔥 卡莉「餘燼」：消除敵方星核 +1 分。`, 'score'); }
+          }
+          G.centralStarCores[r][c2] = null;
         }
       });
-      for (const [pidx, bonus] of Object.entries(markerBonus)) {
-        G.players[pidx].score += bonus;
-        log(`🏴 ${G.players[pidx].name} 標記加分 +${bonus}`, 'score');
-      }
-    }
-    // 卡莉被動：消除超過3個時，從棄牌堆取任意1張（格子已清除後再選）
-    if (m.size > 3 && cp.character === 'kali' && cp.hand.length < effectiveHandLimit(cp)) {
-      if (G.discard.length > 0 && !cp.ai) {
-        await new Promise(resolve => {
-          openModal({
-            title: '✨ 卡莉被動：從棄牌堆取任意 1 張加入手牌',
-            body: () => {
-              const wrap = el('div', { class: 'pick-grid' });
-              [...G.discard].reverse().forEach((card) => {
-                const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-                const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                  onclick: () => {
-                    const idx2 = G.discard.indexOf(card);
-                    if (idx2 >= 0) cp.hand.push(G.discard.splice(idx2, 1)[0]);
-                    log(`✨ 卡莉被動：從棄牌堆取回 1 張牌。`, 'system');
-                    closeModal(); resolve();
-                  }
-                });
-                div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-                wrap.appendChild(div);
-              });
-              return wrap;
-            },
-            actions: [{ label: '跳過', onclick: () => { closeModal(); resolve(); } }]
-          });
+    } else {
+      // 個人星陣星核同樣返還
+      const sc = G.players.find(pl => pl.personalGrid === grid);
+      if (sc && sc.personalStarCores) {
+        m.cells.forEach(([r, c2]) => {
+          const ownerIdx = sc.personalStarCores[r][c2];
+          if (ownerIdx !== null && ownerIdx !== undefined) {
+            const coreOwner = G.players[ownerIdx];
+            if (coreOwner) { if (ownerIdx === cp.idx) coreOwner.coreStock = Math.min(5,(coreOwner.coreStock||0)+1); else coreOwner.corePanel = Math.min(2,(coreOwner.corePanel||0)+1); }
+            sc.personalStarCores[r][c2] = null;
+          }
         });
-      } else if (cp.ai && G.discard.length > 0) {
-        cp.hand.push(G.discard.splice(G.discard.length - 1, 1)[0]);
-        log(`✨ 卡莉被動：從棄牌堆取回 1 張牌。`, 'system');
       }
     }
   }
@@ -1096,48 +1205,7 @@ async function resolveCascades(grid, cp) {
   await delay(300);
 
   // 補牌（由上往下、由左往右；補入後立即觸發消除則丟棄繼續補）
-  const useEoGuide = G.turn && G.turn.eoGuide && cp.character === 'eo' && G.reserve && G.reserve.length > 0;
-  if (useEoGuide) { G.turn.eoGuide = false; } // 消耗一次
-
-  if (useEoGuide && !cp.ai) {
-    // 艾歐引導：玩家從預備區選牌補入每個空格
-    const emptyCells = [];
-    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) if (grid[r][c] === null) emptyCells.push([r, c]);
-    for (const [r, c] of emptyCells) {
-      if (G.reserve.length === 0) {
-        // 預備區已空，改從牌庫補
-        const d = drawN(G, 1);
-        if (d.length) grid[r][c] = d[0];
-        continue;
-      }
-      await new Promise(resolve => {
-        openModal({
-          title: `艾歐引導：選擇補入 (${r+1},${c+1}) 的牌`,
-          body: () => {
-            const wrap = el('div', { class: 'pick-grid' });
-            G.reserve.forEach((card, i) => {
-              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                onclick: async () => {
-                  grid[r][c] = G.reserve.splice(i, 1)[0];
-                  closeModal();
-                  refillReserve();
-                  resolve();
-                }
-              });
-              div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-              wrap.appendChild(div);
-            });
-            return wrap;
-          },
-          actions: []
-        });
-      });
-    }
-    render();
-    // 艾歐引導可觸發連鎖消除
-    await resolveCascades(grid, cp);
-  } else {
+  {
     for (let r = 0; r < 3; r++) {
       for (let c = 0; c < 3; c++) {
         if (grid[r][c] !== null) continue;
@@ -1467,112 +1535,99 @@ async function completeQuest(cp, idx) {
   cp.completedQuests++;
   cp.quests.splice(idx, 1);
   if (G.turn) G.turn.questsCompleted = (G.turn.questsCompleted || 0) + 1;
-  log(`🎯 ${cp.name} 完成「${ENERGY_BY[q.energy].name}」任務 +${Q.score} 分！`, 'score');
-  // 露娜被動：可棄 3 張手牌從預備區放置 1 張牌作為任務
-  if (cp.character === 'luna') {
-    const canAfford = cp.hand.length >= 3;
-    const hasReserve = G.reserve && G.reserve.length > 0;
-    const hasQuestSlot = cp.quests.length < effectiveQuestLimit(cp);
-    if (!cp.ai && canAfford && hasReserve && hasQuestSlot) {
-      await new Promise(resolve => {
-        openModal({
-          title: '露娜被動：是否棄 3 張手牌從預備區放置任務？',
-          body: () => {
-            const wrap = el('div', { style: 'text-align:center' });
-            wrap.innerHTML = `<p>當前手牌：<b>${cp.hand.length}</b> 張（棄 3 張後剩 ${cp.hand.length - 3}）</p>
-              <p style="font-size:0.9em;color:var(--col-muted)">從預備區選 1 張牌加入觀測任務</p>`;
-            return wrap;
-          },
-          actions: [
-            { label: '放棄', onclick: () => { closeModal(); resolve(); } },
-            { label: '確認棄 3 張', onclick: () => {
-              closeModal();
-              // 步驟1：玩家選擇 3 張手牌棄掉
-              const lunaSelected = [];
-              const lunaUpdate = () => {
-                document.querySelectorAll('.modal-bg').forEach(n => n.remove());
+  log('🎯 ' + cp.name + ' 完成「' + ENERGY_BY[q.energy].name + '」任務 +' + Q.score + ' 分！', 'score');
+
+  // V4 任務完成獎勵：抽 1 張牌；若面板星核 < 2 則補充 1 顆（僅露娜被動 光帆；其他角色只抽牌）
+  (async () => {
+    const drawn = drawN(G, 1);
+    if (drawn.length) {
+      cp.hand.push(drawn[0]);
+      log(cp.name + ' 完成任務額外抽 1 張牌。', 'system');
+    }
+    // 露娜「光帆」被動
+    if (cp.character === 'luna' && !cp.ai) {
+      if ((cp.corePanel || 0) < 2 && (cp.coreStock || 0) > 0) {
+        cp.corePanel = (cp.corePanel || 0) + 1;
+        cp.coreStock = (cp.coreStock || 0) - 1;
+        log('🌟 露娜「光帆」：面板補充 1 顆星核（面板：' + cp.corePanel + '，庫存：' + cp.coreStock + '）。', 'system');
+      }
+    }
+    // 瑞克「湮滅」被動：每輪一次，可棄置中央星陣行0或列0的1張牌
+    if (cp.character === 'ryk' && !cp.ai && !cp.rykAnnihilateUsed) {
+      const hasCards = G.centralGrid[0].some(card => card !== null) || G.centralGrid.some(row => row[0] !== null);
+      if (hasCards) {
+        await new Promise(resolve => {
+          openModal({
+            title: '瑞克「湮滅」：棄置中央星陣邊緣 1 張牌？',
+            bodyHtml: '<p>可選擇中央星陣第 1 行（行0）或第 1 列（列0）中的 1 張牌棄置（每輪限一次）。</p>',
+            actions: [
+              { label: '跳過', onclick: () => { closeModal(); resolve(); } },
+              { label: '棄置行0', primary: true, onclick: () => {
+                closeModal();
                 openModal({
-                  title: `露娜被動：選擇棄牌（已選 ${lunaSelected.length}/3）`,
+                  title: '選擇行0的格子（列0-2）',
                   body: () => {
-                    const wrap = el('div', { class: 'pick-grid' });
-                    cp.hand.forEach((hc, hi) => {
-                      const e2 = ENERGY_BY[hc.energy];
-                      const picked = lunaSelected.includes(hi);
-                      const div = el('div', { class: 'hand-card' + (picked ? ' selected' : ''), style: `--cc: ${e2.color}; cursor:pointer;`,
-                        onclick: () => {
-                          if (picked) lunaSelected.splice(lunaSelected.indexOf(hi), 1);
-                          else if (lunaSelected.length < 3) lunaSelected.push(hi);
-                          lunaUpdate();
-                        }
-                      });
-                      div.innerHTML = `<div class="icon">${shapeSVG(hc.shape, e2.color, 40)}</div><div class="label">${e2.en.toUpperCase()}</div><div class="shape-label">${SHAPE_BY[hc.shape].name}</div>`;
-                      wrap.appendChild(div);
+                    const wrap = el('div', { style: 'display:flex;gap:8px' });
+                    [0,1,2].forEach(cv => {
+                      const card = G.centralGrid[0][cv];
+                      if (!card) return;
+                      const e = ENERGY_BY[card.energy];
+                      wrap.appendChild(el('button', { style: '--cc:' + e.color + ';padding:10px;cursor:pointer', onclick: () => {
+                        G.discard.push(card); G.centralGrid[0][cv] = null;
+                        if (G.centralStarCores[0][cv] !== null) { const co = G.players[G.centralStarCores[0][cv]]; if(co) co.coreStock=Math.min(5,(co.coreStock||0)+1); G.centralStarCores[0][cv]=null; }
+                        cp.rykAnnihilateUsed = true;
+                        log('⚡ 瑞克「湮滅」：棄置中央 (1,' + (cv+1) + ')。', 'system');
+                        closeModal(); resolve();
+                      }}, (cv+1) + '列'));
                     });
                     return wrap;
-                  },
-                  actions: [
-                    { label: '取消', onclick: () => { closeModal(); resolve(); } },
-                    { label: `確認棄 ${lunaSelected.length} 張`, primary: lunaSelected.length === 3,
-                      onclick: () => {
-                        if (lunaSelected.length < 3) return;
-                        lunaSelected.sort((a, b) => b - a);
-                        lunaSelected.forEach(i => G.discard.push(cp.hand.splice(i, 1)[0]));
-                        closeModal();
-                        // 步驟2：選預備區牌作為任務
-                        openModal({
-                          title: '選擇 1 張預備區牌作為任務',
-                          body: () => {
-                            const wrap = el('div', { class: 'pick-grid' });
-                            G.reserve.forEach((c, i) => {
-                              const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
-                              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                                onclick: () => {
-                                  const chosen = G.reserve.splice(i, 1)[0];
-                                  cp.quests.push({ energy: chosen.energy, card: chosen });
-                                  log(`✨ 露娜被動：棄 3 張牌，放置「${ENERGY_BY[chosen.energy].name}」為任務。`, 'system');
-                                  closeModal(); render(); resolve();
-                                }
-                              });
-                              div.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-                              wrap.appendChild(div);
-                            });
-                            return wrap;
-                          },
-                                  actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
-                        });
-                      }
-                    }
-                  ]
+                  }, actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
                 });
-              };
-              lunaUpdate();
-            }}
-          ]
+              }},
+              { label: '棄置列0', onclick: () => {
+                closeModal();
+                openModal({
+                  title: '選擇列0的格子（行0-2）',
+                  body: () => {
+                    const wrap = el('div', { style: 'display:flex;gap:8px' });
+                    [0,1,2].forEach(r => {
+                      const card = G.centralGrid[r][0];
+                      if (!card) return;
+                      const e = ENERGY_BY[card.energy];
+                      wrap.appendChild(el('button', { style: '--cc:' + e.color + ';padding:10px;cursor:pointer', onclick: () => {
+                        G.discard.push(card); G.centralGrid[r][0] = null;
+                        if (G.centralStarCores[r][0] !== null) { const co = G.players[G.centralStarCores[r][0]]; if(co) co.coreStock=Math.min(5,(co.coreStock||0)+1); G.centralStarCores[r][0]=null; }
+                        cp.rykAnnihilateUsed = true;
+                        log('⚡ 瑞克「湮滅」：棄置中央 (' + (r+1) + ',1)。', 'system');
+                        closeModal(); resolve();
+                      }}, (r+1) + '行'));
+                    });
+                    return wrap;
+                  }, actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
+                });
+              }}
+            ]
+          });
         });
-      });
+      }
     }
-    // 正常抽 1 張
-    const drawn = drawN(G, 1);
-    if (drawn.length) { cp.hand.push(drawn[0]); log(`${cp.name} 抽 1 張牌（任務獎勵）。`); }
-  } else {
-    const drawn = drawN(G, 1);
-    if (drawn.length) { cp.hand.push(drawn[0]); log(`${cp.name} 抽 1 張牌（任務獎勵）。`); }
-  }
+    render();
+  })();
+
   if (cp.score >= 66 && !G.gameEndTriggered) {
     G.gameEndTriggered = true;
-    log(`🌟 ${cp.name} 已達到 66 分！完成本輪後結算勝負。`, 'system');
+    log('🌟 ' + cp.name + ' 已達到 66 分！完成本輪後結算勝負。', 'system');
   }
   render();
 }
 
-// ========== 14. 棄牌換牌 ==========
+
 async function beginSwapHand() {
   const cp = G.players[G.currentPlayer];
   if (!G.turn) initTurnState();
   if (G.turn.swapsUsed > 0) return; // 每回合只能棄牌換牌 1 次
   if (cp.hand.length === 0) return;
   const isRyk = cp.character === 'ryk';
-  const isSiel = cp.character === 'siel';
 
   if (isRyk) {
     // 瑞克被動：棄 2 張，從預備區與牌庫頂自由分配取 2 張
@@ -1681,23 +1736,7 @@ async function beginSwapHand() {
             onclick: async () => {
               closeModal();
               G.discard.push(cp.hand.splice(i, 1)[0]);
-              // 席爾被動：棄牌換牌時可從預備區或棄牌堆頂取牌
-              if (isSiel) {
-                const hasDiscard = G.discard.length > 0;
-                const hasReserve = G.reserve && G.reserve.length > 0;
-                if (hasDiscard && hasReserve) {
-                  await pickFromReserveOrDiscardSwap(cp);
-                } else if (hasDiscard) {
-                  // 只有棄牌堆可選
-                  const card = G.discard.splice(G.discard.length - 1, 1)[0];
-                  cp.hand.push(card);
-                  log(`✨ 席爾被動：從棄牌堆頂取回 ${ENERGY_BY[card.energy].name} 牌。`, 'system');
-                } else if (hasReserve) {
-                  await pickFromReserveSwap(cp);
-                }
-              } else {
-                await pickFromReserveSwap(cp);
-              }
+              await pickFromReserveSwap(cp);
               G.turn.swapsUsed++;
               refillReserve();
               render(); resolve();
@@ -1738,37 +1777,7 @@ async function pickFromReserveSwap(cp) {
   });
 }
 
-async function pickFromReserveOrDiscardSwap(cp) {
-  // 席爾被動：棄牌換牌時可從棄牌堆頂取牌
-  return new Promise(resolve => {
-    const discardTop = G.discard.length > 0 ? G.discard[G.discard.length - 1] : null;
-    openModal({
-      title: '席爾被動：選擇換入來源',
-      body: () => {
-        const wrap = el('div', { style: 'display:flex;gap:12px;flex-wrap:wrap' });
-        if (G.reserve && G.reserve.length > 0) {
-          const rBtn = el('button', { style: 'flex:1;padding:10px;cursor:pointer', onclick: () => {
-            closeModal(); pickFromReserveSwap(cp).then(resolve);
-          }});
-          rBtn.textContent = '從預備區取';
-          wrap.appendChild(rBtn);
-        }
-        if (discardTop) {
-          const e = ENERGY_BY[discardTop.energy];
-          const dBtn = el('button', { style: `flex:1;padding:10px;cursor:pointer;border:2px solid ${e.color}`, onclick: () => {
-            cp.hand.push(G.discard.splice(G.discard.length - 1, 1)[0]);
-            log(`✨ 席爾被動：從棄牌堆頂取回 ${e.name} 牌。`, 'system');
-            closeModal(); resolve();
-          }});
-          dBtn.innerHTML = `從棄牌堆頂取<br><small style="color:${e.color}">${e.en.toUpperCase()}</small>`;
-          wrap.appendChild(dBtn);
-        }
-        return wrap;
-      },
-      actions: []
-    });
-  });
-}
+
 
 // ========== 15. 星塵凝聚 ==========
 function canDeclareStardust(cp) {
@@ -1783,7 +1792,6 @@ function canDeclareStardust(cp) {
     if ((G.turn.questsCompleted || 0) > 0) return false;
   }
   if (cp.characterActiveUsed) return false;
-  if (cp.eoPassiveUsedThisTurn) return false;
   return true;
 }
 
@@ -1871,11 +1879,15 @@ function dirName(d) {
 // ========== 17. 角色主動能力 ==========
 async function triggerCharacterActive(p) {
   if (!p.character || p.characterActiveUsed) return;
+  if ((p.corePanel || 0) < 1) {
+    openModal({ title: '面板星核不足', bodyHtml: '<p>主動技需消耗 1 顆面板星核，目前面板無星核。</p>', actions: [{ label: '確認', onclick: () => closeModal() }] });
+    return;
+  }
   const ch = CHARACTERS[p.character];
   const ok = await new Promise(r => {
     openModal({
-      title: `發動「${ch.activeName}」？`,
-      bodyHtml: `<p>${ch.activeDesc}</p><p class="small muted">每局限用一次。</p>`,
+      title: '發動「' + ch.activeName + '」？',
+      bodyHtml: '<p>' + ch.activeDesc + '</p><p class="small muted">消耗 1 顆面板星核，每回合限用一次。面板星核：' + p.corePanel + ' 顆</p>',
       actions: [
         { label: '取消', onclick: () => { closeModal(); r(false); } },
         { label: '發動', primary: true, onclick: () => { closeModal(); r(true); } }
@@ -1884,321 +1896,220 @@ async function triggerCharacterActive(p) {
   });
   if (!ok) return;
   p.characterActiveUsed = true;
+  p.corePanel = (p.corePanel || 0) - 1;
   if (!G.turn) initTurnState();
 
   if (p.character === 'kali') {
-    G.turn.kaliDouble = true;
-    log(`🔥 卡莉「引爆」：本回合消除得分 ×2！`, 'system');
-  } else if (p.character === 'eo') {
-    // 從預備區自由補牌（在下次補牌時生效）
-    G.turn.eoGuide = true;
-    log(`❄ 艾歐「引導」：本回合補牌時可從預備區選牌。`, 'system');
-  } else if (p.character === 'siel') {
-    // 席爾「虛空召喚」：從棄牌堆取任意 1 張，推入個人星陣任意邊緣
-    if (G.discard.length === 0) { log(`席爾「虛空召喚」：棄牌堆為空。`, 'system'); p.characterActiveUsed = false; }
-    else {
-      let chosen = null;
-      await new Promise(resolve => {
-        openModal({
-          title: '席爾虛空召喚：從棄牌堆選 1 張',
-          body: () => {
-            const wrap = el('div', { class: 'pick-grid' });
-            G.discard.forEach((card, i) => {
-              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                onclick: () => {
-                  chosen = G.discard.splice(i, 1)[0];
-                  closeModal(); resolve();
-                }
-              });
-              div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-              wrap.appendChild(div);
-            });
-            return wrap;
-          },
-          actions: [{ label: '取消', onclick: () => { closeModal(); resolve(); } }]
-        });
-      });
-      if (chosen) {
-        // 步驟 1：選擇推入哪個星陣（個人 or 中央）
-        let targetGrid = null, targetGridLabel = '';
-        await new Promise(resolve => {
-          openModal({
-            title: '席爾虛空召喚：選擇目標星陣',
-            body: () => {
-              const wrap = el('div', { style: 'display:flex;gap:12px' });
-              const btnP = el('button', { style: 'flex:1;padding:14px;cursor:pointer', onclick: () => {
-                targetGrid = p.personalGrid; targetGridLabel = '個人'; closeModal(); resolve();
-              }});
-              btnP.textContent = '🔲 個人星陣';
-              const btnC = el('button', { style: 'flex:1;padding:14px;cursor:pointer', onclick: () => {
-                targetGrid = G.centralGrid; targetGridLabel = '中央'; closeModal(); resolve();
-              }});
-              btnC.textContent = '🌐 中央星陣';
-              wrap.appendChild(btnP); wrap.appendChild(btnC);
-              return wrap;
-            },
-            actions: [{ label: '取消', onclick: () => { G.discard.push(chosen); closeModal(); resolve(); } }]
-          });
-        });
-        if (!targetGrid) return; // 取消
-
-        // 步驟 2：選擇推入方向和位置
-        await new Promise(resolve => {
-          openModal({
-            title: `席爾虛空召喚：推入${targetGridLabel}星陣，選擇方向`,
-            body: () => {
-              const wrap = el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:8px' });
-              const dirs = [
-                { dir: 'down', label: '從上推入（選列 0-2）' },
-                { dir: 'up', label: '從下推入（選列 0-2）' },
-                { dir: 'right', label: '從左推入（選行 0-2）' },
-                { dir: 'left', label: '從右推入（選行 0-2）' },
-              ];
-              dirs.forEach(({ dir, label }) => {
-                const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
-                  closeModal();
-                  openModal({
-                    title: `席爾虛空召喚：選擇${dir === 'down' || dir === 'up' ? '列' : '行'}（0-2）`,
-                    body: () => {
-                      const w = el('div', { style: 'display:flex;gap:8px' });
-                      [0, 1, 2].forEach(idx => {
-                        const b = el('button', { style: 'flex:1;padding:12px;cursor:pointer;font-size:1.2em', onclick: async () => {
-                          closeModal();
-                          const pushed = pushIntoGrid3x3(targetGrid, chosen, dir, idx);
-                          log(`✨ 席爾「虛空召喚」：將牌推入${targetGridLabel}星陣。`, 'system');
-                          if (pushed) await handlePushedOut(pushed, p, targetGrid);
-                          await resolveCascades(targetGrid, p);
-                          render(); resolve();
-                        }});
-                        b.textContent = String(idx);
-                        w.appendChild(b);
-                      });
-                      return w;
-                    },
-                    actions: []
-                  });
-                }});
-                btn.textContent = label;
-                wrap.appendChild(btn);
-              });
-              return wrap;
-            },
-            actions: [{ label: '取消', onclick: () => { G.discard.push(chosen); closeModal(); resolve(); } }]
-          });
-        });
-      }
-    }
-  } else if (p.character === 'luna') {
-    // 露娜「輻射爆」：移除所有觀測任務，重抽（移除數+1）張
-    const removedCount = p.quests.length;
-    if (removedCount === 0) {
-      log(`🌟 露娜「輻射爆」：無任務可移除。`, 'system');
-      p.characterActiveUsed = false;
-    } else {
-      // 將任務底牌還入棄牌堆（只還卡牌本身，不是任務物件）
-      p.quests.forEach(q => { if (q.card) G.discard.push(q.card); });
-      p.quests = [];
-      const drawCount = removedCount + 1;
-      const newQuests = [];
-      // v4：直接從牌庫抽牌，牌的能量就是新任務能量
-      for (let i = 0; i < drawCount; i++) {
-        const drawn = drawN(G, 1);
-        if (!drawn.length) break;
-        const card = drawn[0];
-        newQuests.push({ energy: card.energy, card });
-      }
-      p.quests = newQuests.slice(0, effectiveQuestLimit(p));
-      log(`🌟 露娜「輻射爆」：移除 ${removedCount} 個任務，重抽 ${p.quests.length} 個新任務！`, 'score');
-    }
-  } else if (p.character === 'ryk') {
-    // 瑞克「置換」：抽 1 張加入手牌，並將手牌任 1 張與星陣中任 1 張互換
-    const d = drawN(G, 1);
-    if (d.length) { p.hand.push(d[0]); log(`瑞克「置換」：抽 1 張牌加入手牌。`, 'system'); }
-    if (p.hand.length === 0) { render(); return; }
-    // 選手牌
-    let handCard = null; let handIdx = -1;
     await new Promise(resolve => {
       openModal({
-        title: '瑞克置換：選擇手牌中要互換的牌',
+        title: '卡莉「連鎖引爆」：選擇目標星陣',
         body: () => {
-          const wrap = el('div', { class: 'pick-grid' });
-          p.hand.forEach((card, i) => {
-            const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-            const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-              onclick: () => { handCard = card; handIdx = i; closeModal(); resolve(); }
-            });
-            div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-            wrap.appendChild(div);
+          const wrap = el('div', { style: 'display:flex;gap:12px' });
+          wrap.appendChild(el('button', { style: 'flex:1;padding:12px;cursor:pointer', onclick: () => { closeModal(); kaliChainBlast(p, p.personalGrid, '個人').then(resolve); } }, '個人星陣'));
+          wrap.appendChild(el('button', { style: 'flex:1;padding:12px;cursor:pointer', onclick: () => { closeModal(); kaliChainBlast(p, G.centralGrid, '中央').then(resolve); } }, '中央星陣'));
+          return wrap;
+        },
+        actions: [{ label: '取消', onclick: () => { p.corePanel++; p.characterActiveUsed = false; closeModal(); resolve(); } }]
+      });
+    });
+  } else if (p.character === 'eo') {
+    await new Promise(resolve => {
+      UI.awaiting = {
+        type: 'eoFreezeSelect',
+        hint: '艾歐「絕對零度」：點選中央星陣格放置凍結標記。',
+        onPickGrid: async (grid, r, cv) => {
+          if (grid !== G.centralGrid) return;
+          UI.awaiting = null;
+          G.frozenCells = G.frozenCells || [];
+          G.frozenCells.push({ r, c: cv, ownerIdx: p.idx });
+          log('❄ 艾歐「絕對零度」：中央 (' + (r+1) + ',' + (cv+1) + ') 凍結至下一回合。', 'system');
+          render(); resolve();
+        }
+      };
+      render();
+    });
+  } else if (p.character === 'siel') {
+    let targetPlayer = G.players.filter(pl => pl.idx !== p.idx).length === 1
+      ? G.players.find(pl => pl.idx !== p.idx)
+      : await new Promise(resolve => {
+          openModal({
+            title: '席爾「虛空掠奪」：選擇目標玩家',
+            body: () => {
+              const wrap = el('div', { style: 'display:flex;flex-direction:column;gap:8px' });
+              G.players.filter(pl => pl.idx !== p.idx).forEach(pl => {
+                wrap.appendChild(el('button', { style: 'padding:10px;cursor:pointer', onclick: () => { closeModal(); resolve(pl); } }, pl.name));
+              });
+              return wrap;
+            },
+            actions: [{ label: '取消', onclick: () => { p.corePanel++; p.characterActiveUsed = false; closeModal(); resolve(null); } }]
+          });
+        });
+    if (!targetPlayer) { render(); return; }
+    await new Promise(resolve => {
+      UI.awaiting = {
+        type: 'sielVoidGrab',
+        hint: '席爾「虛空掠奪」：點選 ' + targetPlayer.name + ' 的個人星陣格。',
+        targetPlayer,
+        onPickGrid: async (grid, r, cv) => {
+          if (grid !== targetPlayer.personalGrid || !targetPlayer.personalGrid[r][cv]) return;
+          UI.awaiting = null;
+          const grabbed = targetPlayer.personalGrid[r][cv];
+          G.discard.push(grabbed); targetPlayer.personalGrid[r][cv] = null;
+          if (targetPlayer.personalStarCores && targetPlayer.personalStarCores[r][cv] !== null) {
+            const co = G.players[targetPlayer.personalStarCores[r][cv]];
+            if (co) co.coreStock = Math.min(5, (co.coreStock||0)+1);
+            targetPlayer.personalStarCores[r][cv] = null;
+          }
+          G.sielVoidGrabs = G.sielVoidGrabs || [];
+          G.sielVoidGrabs.push({ targetPlayerIdx: targetPlayer.idx, r, c: cv });
+          log('🌑 席爾「虛空掠奪」：取走 ' + targetPlayer.name + ' 的 ' + cardLabel(grabbed) + '，延遲補牌。', 'system');
+          render(); resolve();
+        }
+      };
+      render();
+    });
+  } else if (p.character === 'luna') {
+    let coreCount = 0;
+    G.centralStarCores.forEach((row, r) => row.forEach((v, cv) => {
+      if (v === p.idx) { G.centralStarCores[r][cv] = null; coreCount++; }
+    }));
+    if (coreCount === 0) {
+      p.corePanel++; p.characterActiveUsed = false;
+      log('🌟 露娜「日冕」：中央星陣無星核可移除。', 'system');
+    } else {
+      p.score += coreCount * 2;
+      log('🌟 露娜「日冕」：移除 ' + coreCount + ' 顆星核，得 +' + (coreCount * 2) + ' 分！', 'score');
+    }
+  } else if (p.character === 'ryk') {
+    if (G.turn && G.turn.pushed) {
+      openModal({ title: '逆位：只能在插卡前發動', bodyHtml: '<p>此回合已插卡，無法發動「逆位」。</p>', actions: [{ label: '確認', onclick: () => { p.corePanel++; p.characterActiveUsed = false; closeModal(); } }] });
+      return;
+    }
+    let targetP = G.players.length === 1 ? p : await new Promise(resolve => {
+      openModal({
+        title: '瑞克「逆位」：選擇要重置的個人星陣',
+        body: () => {
+          const wrap = el('div', { style: 'display:flex;flex-direction:column;gap:8px' });
+          G.players.forEach(pl => {
+            wrap.appendChild(el('button', { style: 'padding:10px;cursor:pointer', onclick: () => { closeModal(); resolve(pl); } }, pl.name + (pl.idx === p.idx ? '（自己）' : '')));
           });
           return wrap;
         },
-        actions: [{ label: '跳過互換', onclick: () => { closeModal(); resolve(); } }]
+        actions: [{ label: '取消', onclick: () => { p.corePanel++; p.characterActiveUsed = false; closeModal(); resolve(null); } }]
       });
     });
-    if (handCard !== null) {
-      // 選星陣格子（個人 or 中央）
-      log(`瑞克「置換」：請點選星陣中要互換的格子。`, 'system');
-      UI.awaiting = {
-        type: 'rykSwapGrid',
-        hint: '瑞克「置換」：點選星陣中要互換的格子。',
-        handCard, handIdx,
-        onPickGrid: async (grid, r, c) => {
-          UI.awaiting = null;
-          if (grid[r][c] === null) { render(); return; }
-          const gridCard = grid[r][c];
-          p.hand[handIdx] = gridCard;
-          grid[r][c] = handCard;
-          log(`瑞克「置換」：手牌 ${cardLabel(handCard)} ↔ 星陣 ${cardLabel(gridCard)}。`, 'system');
-          await resolveCascades(grid, p);
-          render();
-        }
-      };
+    if (!targetP) { render(); return; }
+    for (let r = 0; r < 3; r++) for (let cv = 0; cv < 3; cv++) {
+      if (targetP.personalGrid[r][cv]) { G.discard.push(targetP.personalGrid[r][cv]); targetP.personalGrid[r][cv] = null; }
+      if (targetP.personalStarCores[r][cv] !== null) { const co = G.players[targetP.personalStarCores[r][cv]]; if (co) co.coreStock=Math.min(5,(co.coreStock||0)+1); targetP.personalStarCores[r][cv]=null; }
     }
+    G.turn.rykDoubleScore = true;
+    const newCards = drawN(G, 9); let ni = 0;
+    for (let r = 0; r < 3; r++) for (let cv = 0; cv < 3; cv++) { if (ni < newCards.length) targetP.personalGrid[r][cv] = newCards[ni++]; }
+    log('⚡ 瑞克「逆位」：重置 ' + targetP.name + ' 的個人星陣！本次消除得分 ×2。', 'system');
+    await resolveCascades(targetP.personalGrid, p);
+    G.turn.pushed = true; G.awaitingEndTurn = true;
   } else if (p.character === 'tavi') {
-    // 塔薇「疊加」：從棄牌堆/牌庫/預備區合計取 3 張，其中 2 張可放置為任務
-    const taken = [];
-    for (let i = 0; i < 3; i++) {
-      await new Promise(resolve => {
-        const opts = [];
-        if (G.discard.length > 0) opts.push('discard');
-        if (G.deck.length > 0) opts.push('deck');
-        if (G.reserve && G.reserve.length > 0) opts.push('reserve');
-        if (opts.length === 0) { resolve(); return; }
-        openModal({
-          title: `塔薇疊加：取第 ${i+1} 張（共 3 張），選擇來源`,
-          body: () => {
-            const wrap = el('div', { style: 'display:flex;flex-direction:column;gap:10px' });
-            if (opts.includes('discard')) {
-              const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
-                closeModal();
-                openModal({
-                  title: '從棄牌堆選 1 張',
-                  body: () => {
-                    const w = el('div', { class: 'pick-grid' });
-                    G.discard.forEach((c, di) => {
-                      const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
-                      const d = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                        onclick: () => { taken.push(G.discard.splice(di, 1)[0]); closeModal(); resolve(); }
-                      });
-                      d.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-                      w.appendChild(d);
-                    });
-                    return w;
-                  }, actions: []
-                });
-              }});
-              btn.textContent = '從棄牌堆取';
-              wrap.appendChild(btn);
-            }
-            if (opts.includes('deck')) {
-              const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
-                const d = drawN(G, 1); if (d.length) taken.push(d[0]);
-                closeModal(); resolve();
-              }});
-              btn.textContent = '從牌庫頂取';
-              wrap.appendChild(btn);
-            }
-            if (opts.includes('reserve')) {
-              const btn = el('button', { style: 'padding:10px;cursor:pointer', onclick: () => {
-                closeModal();
-                openModal({
-                  title: '從預備區選 1 張',
-                  body: () => {
-                    const w = el('div', { class: 'pick-grid' });
-                    G.reserve.forEach((c, ri) => {
-                      const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
-                      const d = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                        onclick: () => { taken.push(G.reserve.splice(ri, 1)[0]); refillReserve(); closeModal(); resolve(); }
-                      });
-                      d.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-                      w.appendChild(d);
-                    });
-                    return w;
-                  }, actions: []
-                });
-              }});
-              btn.textContent = '從預備區取';
-              wrap.appendChild(btn);
-            }
-            return wrap;
-          },
-          actions: []
-        });
-      });
+    const validGrids = [];
+    if (G.centralStarCores.some(row => row.some(v => v === p.idx))) validGrids.push(G.centralGrid);
+    G.players.forEach(pl => { if (pl.personalStarCores && pl.personalStarCores.some(row => row.some(v => v === p.idx)) && !validGrids.includes(pl.personalGrid)) validGrids.push(pl.personalGrid); });
+    if (validGrids.length === 0) {
+      p.corePanel++; p.characterActiveUsed = false;
+      openModal({ title: '量子糾纏：無可用星陣', bodyHtml: '<p>沒有帶有你星核的星陣。先放置星核再發動。</p>', actions: [{ label: '確認', onclick: () => closeModal() }] });
+      return;
     }
-    // 將取到的牌：最多 2 張設為任務，其餘加入手牌
-    log(`✨ 塔薇「疊加」：取得 ${taken.length} 張牌。`, 'system');
-    let questsPlaced = 0;
-    for (const card of taken) {
-      const canSetQuest = questsPlaced < 2 && p.quests.length < effectiveQuestLimit(p);
-      if (!canSetQuest) { p.hand.push(card); continue; }
-      const setAsQuest = await new Promise(resolve => {
-        const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-        openModal({
-          title: '塔薇疊加：加入手牌還是設為任務？',
-          bodyHtml: `<div style="text-align:center"><div style="font-size:2em">${shapeSVG(card.shape, e.color, 48)}</div><div>${e.name} ${s.name}</div></div>`,
-          actions: [
-            { label: '加入手牌', onclick: () => { closeModal(); resolve(false); } },
-            { label: '設為觀測任務', primary: true, onclick: () => { closeModal(); resolve(true); } }
-          ]
-        });
+    let targetGrid = validGrids.length === 1 ? validGrids[0] : await new Promise(resolve => {
+      openModal({
+        title: '塔薇「量子糾纏」：選擇目標星陣',
+        body: () => {
+          const wrap = el('div', { style: 'display:flex;flex-direction:column;gap:8px' });
+          validGrids.forEach(grid => {
+            const label = grid === G.centralGrid ? '中央星陣' : (() => { const o = G.players.find(pl => pl.personalGrid === grid); return o ? o.name + ' 的個人星陣' : '個人星陣'; })();
+            wrap.appendChild(el('button', { style: 'padding:10px;cursor:pointer', onclick: () => { closeModal(); resolve(grid); } }, label));
+          });
+          return wrap;
+        },
+        actions: [{ label: '取消', onclick: () => { p.corePanel++; p.characterActiveUsed = false; closeModal(); resolve(null); } }]
       });
-      if (setAsQuest) { p.quests.push({ energy: card.energy, card }); questsPlaced++; }
-      else { p.hand.push(card); }
-    }
+    });
+    if (!targetGrid) { render(); return; }
+    G.turn.taviExtraGrid = targetGrid;
+    const tLabel = targetGrid === G.centralGrid ? '中央星陣' : '指定個人星陣';
+    log('⚛ 塔薇「量子糾纏」：' + tLabel + ' 本回合視為你的星陣。', 'system');
   }
   render();
 }
 
-async function eoPassiveCycle(cp) {
-  if (cp.eoPassiveUsedThisTurn || !G.reserve || G.reserve.length === 0) return;
-  const state = { selected: [] };
+async function kaliChainBlast(p, grid, label) {
   return new Promise(resolve => {
-    const update = () => {
-      document.querySelectorAll('.modal-bg').forEach(n => n.remove());
-      openModal({
-        title: `艾歐被動：已選 ${state.selected.length} 張（可選 1～3）`,
-        body: () => {
-          const wrap = el('div', { class: 'pick-grid' });
-          G.reserve.forEach((card, i) => {
-            const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-            const picked = state.selected.includes(i);
-            const div = el('div', { class: 'hand-card' + (picked ? ' selected' : ''), style: `--cc: ${e.color}; cursor:pointer;`,
-              onclick: () => {
-                if (picked) state.selected = state.selected.filter(x => x !== i);
-                else if (state.selected.length < 3) state.selected.push(i);
-                update();
-              }
-            });
-            div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-            wrap.appendChild(div);
-          });
-          return wrap;
-        },
-        actions: [
-          { label: '取消', onclick: () => { closeModal(); resolve(); } },
-          { label: `循環 ${state.selected.length} 張`, primary: true, onclick: () => {
-            const n = state.selected.length;
-            if (n === 0) { closeModal(); resolve(); return; }
-            const removed = state.selected.sort((a, b) => b - a).map(i => G.reserve.splice(i, 1)[0]);
-            removed.forEach(c => G.discard.push(c));
-            const drawn = drawN(G, n);
-            drawn.forEach(c => G.reserve.push(c));
-            cp.eoPassiveUsedThisTurn = true;
-            log(`❄ 艾歐被動：循環 ${n} 張預備區牌。`, 'system');
-            closeModal(); render(); resolve();
-          }}
-        ]
-      });
-    };
-    update();
+    openModal({
+      title: '連鎖引爆：選擇行或列',
+      body: () => {
+        const wrap = el('div', { style: 'display:flex;flex-direction:column;gap:8px' });
+        ['行0（上）','行1（中）','行2（下）'].forEach((txt, r) => {
+          wrap.appendChild(el('button', { style: 'padding:10px;cursor:pointer', onclick: async () => {
+            closeModal();
+            const sc = (grid === G.centralGrid) ? G.centralStarCores : p.personalStarCores;
+            for (let cv = 0; cv < 3; cv++) {
+              if (grid[r][cv]) { G.discard.push(grid[r][cv]); grid[r][cv]=null; }
+              if (sc && sc[r][cv]!==null) { const co=G.players[sc[r][cv]]; if(co){co.coreStock=Math.min(5,(co.coreStock||0)+1);if(sc[r][cv]!==p.idx)p.score+=1;} sc[r][cv]=null; }
+            }
+            for (let cv = 0; cv < 3; cv++) { let t=0; while(t++<30&&!grid[r][cv]){const d=drawN(G,1);if(!d.length)break;grid[r][cv]=d[0];if(findMatchesInGrid(grid).length>0){G.discard.push(grid[r][cv]);grid[r][cv]=null;}else break;} }
+            log('🔥 卡莉「連鎖引爆」：'+label+'星陣第'+(r+1)+'行清除並補牌。','system');
+            render(); resolve();
+          } }, txt));
+        });
+        ['列0（左）','列1（中）','列2（右）'].forEach((txt, cv) => {
+          wrap.appendChild(el('button', { style: 'padding:10px;cursor:pointer', onclick: async () => {
+            closeModal();
+            const sc = (grid === G.centralGrid) ? G.centralStarCores : p.personalStarCores;
+            for (let r = 0; r < 3; r++) {
+              if (grid[r][cv]) { G.discard.push(grid[r][cv]); grid[r][cv]=null; }
+              if (sc && sc[r][cv]!==null) { const co=G.players[sc[r][cv]]; if(co){co.coreStock=Math.min(5,(co.coreStock||0)+1);if(sc[r][cv]!==p.idx)p.score+=1;} sc[r][cv]=null; }
+            }
+            for (let r = 0; r < 3; r++) { let t=0; while(t++<30&&!grid[r][cv]){const d=drawN(G,1);if(!d.length)break;grid[r][cv]=d[0];if(findMatchesInGrid(grid).length>0){G.discard.push(grid[r][cv]);grid[r][cv]=null;}else break;} }
+            log('🔥 卡莉「連鎖引爆」：'+label+'星陣第'+(cv+1)+'列清除並補牌。','system');
+            render(); resolve();
+          } }, txt));
+        });
+        return wrap;
+      },
+      actions: [{ label: '取消', onclick: () => { p.corePanel++; p.characterActiveUsed = false; closeModal(); resolve(); } }]
+    });
+  });
+}
+
+async function sielVoidDraw(p) {
+  const available = [];
+  for (let r = 0; r < 3; r++) for (let cv = 0; cv < 3; cv++) { if (p.personalGrid[r][cv]) available.push({r,c:cv}); }
+  if (!available.length) return null;
+  return new Promise(resolve => {
+    openModal({
+      title: '席爾「虛空汲取」：從個人星陣取牌或正常補牌？',
+      bodyHtml: '<p>可從個人星陣取 1 張牌加入手牌，該格延遲至回合結束後補牌。</p>',
+      actions: [
+        { label: '正常補牌', onclick: () => { closeModal(); resolve(null); } },
+        { label: '從個人星陣取牌', primary: true, onclick: () => {
+          closeModal();
+          UI.awaiting = { type: 'sielVoidDrawSelect', hint: '席爾被動：點選個人星陣格取牌。',
+            onPickGrid: async (grid, r, cv) => {
+              if (grid !== p.personalGrid || !p.personalGrid[r][cv]) return;
+              UI.awaiting = null;
+              const taken = p.personalGrid[r][cv]; p.personalGrid[r][cv] = null;
+              G.sielVoidGrabs = G.sielVoidGrabs || [];
+              G.sielVoidGrabs.push({ targetPlayerIdx: p.idx, r, c: cv });
+              log('🌑 席爾「虛空汲取」：從個人星陣取出 '+cardLabel(taken)+'，延遲補牌。', 'system');
+              render(); resolve(taken);
+            }
+          };
+          render();
+        } }
+      ]
+    });
   });
 }
 
 
-// ========== 18. UI 渲染 ==========
-const $ = (sel, root = document) => root.querySelector(sel);
 function el(tag, attrs = {}, ...children) {
   const n = document.createElement(tag);
   for (const k in attrs) {
@@ -2362,13 +2273,15 @@ function showRules() {
       <p>累積得分達 <b>66</b> 分立即獲勝。</p>
       <h3>星陣結構</h3>
       <p>每位玩家有一個 <b>3×3 個人星陣</b>，另有一個所有人共用的 <b>3×3 中央星陣</b>。</p>
-      <h3>中央星陣標記系統</h3>
-      <p>推牌進入<b>中央星陣</b>時，可選擇在該格放下你的玩家標記（彩色圓點）。<br>
-         中央星陣發生消除時，<b>消除格上每個你的標記額外得 +2 分</b>（與消除分數分開計算）。<br>
-         標記隨牌消失——牌被推出，標記也跟著消失。</p>
+      <h3>⭐ 星核系統</h3>
+      <p>每位玩家有<b>面板星核</b>（0-2 顆）和<b>庫存星核</b>（0-5 顆）。<br>
+         推牌進入中央或個人星陣時，可花費 1 顆<b>庫存星核</b>放置到推入格。<br>
+         星核隨牌移動；牌被推出時，你的星核歸還庫存。<br>
+         消除時：<b>你的星核</b>返還庫存；<b>對手的星核</b>返還給對手的面板（+1顆）。<br>
+         主動技每回合限用 1 次，花費 1 顆<b>面板星核</b>。</p>
       <h3>每回合流程</h3>
-      <p>1. 可發動 Void Walker 主動能力（每局限 1 次）。<br>
-         2. 可選棄 1 換 1（瑞克：2 換 2）。<br>
+      <p>1. 可發動 Void Walker 主動能力（花費 1 面板星核，每回合限 1 次）。<br>
+         2. 可選棄 1 換 1。<br>
          3. 回合中任意時間可宣告已達成的任務。<br>
          4. 從手牌選 1 張，推入個人或中央星陣任一邊緣。<br>
          5. 被推出的牌：收入手牌 / 發動星際能力 / 設為觀測任務。<br>
@@ -2386,6 +2299,16 @@ function showRules() {
         <tr><td>七消</td><td>U形 / H形</td><td>+24</td></tr>
         <tr><td>八消</td><td>3×3 外圈（一圈）</td><td>+39</td></tr>
         <tr><td>九消</td><td>3×3 全滿</td><td>+66</td></tr>
+      </table>
+      <h3>Void Walker 主動技（各花費 1 面板星核）</h3>
+      <table>
+        <tr><th>角色</th><th>主動技</th><th>效果</th></tr>
+        <tr><td>卡莉</td><td>連鎖引爆</td><td>選任意星陣 1 行或 1 列，棄置全部並補牌</td></tr>
+        <tr><td>艾歐</td><td>絕對零度</td><td>中央星陣 1 格凍結至下一回合（不移動、不消除）</td></tr>
+        <tr><td>席爾</td><td>虛空掠奪</td><td>取走對手個人星陣 1 張棄置，該格延遲補牌</td></tr>
+        <tr><td>露娜</td><td>日冕</td><td>移除中央所有你的星核，每顆 +2 分</td></tr>
+        <tr><td>瑞克</td><td>逆位</td><td>插牌前：重置指定個人星陣全部9張，本次消除 ×2</td></tr>
+        <tr><td>塔薇</td><td>量子糾纏</td><td>選帶有你星核的星陣，本回合視為你的星陣</td></tr>
       </table>
       <h3>星際能力（依星體形狀）</h3>
       <table>
@@ -2405,7 +2328,7 @@ function showRules() {
         <tr><td>量子 Quantum</td><td>任一星陣中同時有 6 種不同能量</td></tr>
       </table>
       <h3>手牌規則</h3>
-      <p>手牌上限 6 張（席爾 +3 → 9 張）、任務上限 3 個（席爾 +3 → 6 個）。超過上限時回合結束前需棄牌。</p>
+      <p>手牌上限 6 張、任務上限 3 個。超過上限時回合結束前需棄牌。</p>
     `,
     actions: [{ label: '關閉', primary: true }]
   });
@@ -2566,8 +2489,8 @@ function renderStarCard(card, targetGrid, gr, gc) {
   const div = el('div', { class: 'star-card', style: `--cc: ${e.color}` });
   // 中央星陣標記徽章
   let markerBadge = '';
-  if (targetGrid === G.centralGrid && G.centralMarkers[gr][gc] !== null && G.centralMarkers[gr][gc] !== undefined) {
-    const ownerIdx = G.centralMarkers[gr][gc];
+  if (targetGrid === G.centralGrid && G.centralStarCores[gr][gc] !== null && G.centralStarCores[gr][gc] !== undefined) {
+    const ownerIdx = G.centralStarCores[gr][gc];
     const ownerColor = G.players[ownerIdx] ? G.players[ownerIdx].color : '#fff';
     markerBadge = `<div style="position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:${ownerColor};border:1.5px solid rgba(0,0,0,0.5);z-index:3;" title="${G.players[ownerIdx]?.name} 的標記"></div>`;
   }
@@ -2730,22 +2653,21 @@ function renderActions(cp) {
   }
 
   // 艾歐被動：循環預備區
-  if (cp.character === 'eo' && !cp.eoPassiveUsedThisTurn && !cp.ai && G.reserve && G.reserve.length > 0) {
-    if (!G.awaitingEndTurn && !(G.turn && G.turn.pushed)) {
-      actions.appendChild(el('button', {
-        onclick: () => eoPassiveCycle(cp).then(() => render())
-      }, '艾歐被動：循環預備區'));
-    }
-  }
 
-  // 角色主動技能
-  if (cp.character && !cp.characterActiveUsed) {
+  // 角色主動技能（每回合限用一次，消耗面板星核）
+  if (cp.character) {
     const ch = CHARACTERS[cp.character];
-    actions.appendChild(el('button', {
-      class: 'btn-character',
-      onclick: () => triggerCharacterActive(cp).then(() => render()),
-      title: ch.activeDesc
-    }, `${ch.activeName}（主動）`));
+    const noCore = (cp.corePanel || 0) < 1;
+    const used = cp.characterActiveUsed;
+    if (!used) {
+      const btn = el('button', {
+        class: 'btn-character' + (noCore ? ' disabled' : ''),
+        style: noCore ? 'opacity:0.5;cursor:not-allowed' : '',
+        onclick: noCore ? null : () => triggerCharacterActive(cp).then(() => render()),
+        title: ch.activeDesc
+      }, ch.activeName + '（主動｜面板星核：' + (cp.corePanel||0) + '）');
+      actions.appendChild(btn);
+    }
   }
 
   return actions;
@@ -2772,8 +2694,10 @@ function renderHelpTable() {
     ['七消（U形/H形）', '+24'],
     ['八消（外圈）', '+39'],
     ['九消（全滿）', '+66'],
-    ['中央標記（每個）', '+2'],
     ['完成任務', '+6'],
+    ['消除帶星核（返還）', ''],
+    ['露娜日冕移除（每顆）', '+2'],
+    ['卡莉消除敵核（每顆）', '+1'],
   ];
 
   const table = el('table', { style: 'width:100%;border-collapse:collapse;font-size:12px;' });
@@ -2834,10 +2758,13 @@ function renderPlayersPanel() {
           (isCurrent ? '► ' : '') + p.name + (p.ai ? ' [AI]' : '') +
           (isFirst ? ' 🏠' : '')
         ),
-        el('div', { class: 'player-score' }, `⭐ ${p.score} 分` + (G.gameEndTriggered ? ' 🔔' : '')),
+        el('div', { class: 'player-score' }, '⭐ ' + p.score + ' 分' + (G.gameEndTriggered ? ' 🔔' : '')),
         ch ? el('div', { style: 'font-size:11px;margin-top:2px;color:var(--col-muted)' },
-          `${ch.name} · 手${p.hand.length}/${effectiveHandLimit(p)} 任務${p.quests.length}/${effectiveQuestLimit(p)}`
+          ch.name + ' · 手' + p.hand.length + '/6 任務' + p.quests.length + '/3'
         ) : null,
+        el('div', { style: 'font-size:11px;margin-top:2px;color:#7ad4ff' },
+          '★ 面板:' + (p.corePanel||0) + ' 庫存:' + (p.coreStock||0)
+        ),
         el('div', { style: 'margin-top:4px' }, renderMiniGrid(p.personalGrid))
       );
     })
@@ -3046,7 +2973,7 @@ async function maybeRunAITurn() {
     const gridName = isCentral ? '中央星陣' : '個人星陣';
     if (isCentral) {
       const [mr, mc] = getInsertedCell(bestDir, bestIdx);
-      G.centralMarkers[mr][mc] = cp.idx;
+      G.centralStarCores[mr][mc] = cp.idx;
       log(`${cp.name} 推入 ${cardLabel(card)} 進${gridName}並放下標記。`);
     } else {
       log(`${cp.name} 推入 ${cardLabel(card)} 進${gridName}。`);
@@ -3195,7 +3122,7 @@ function listenRoom(code) {
       isSyncing = true;
       G = newState;
       G.centralGrid = fixGrid(G.centralGrid);
-      G.centralMarkers = fixGrid(G.centralMarkers);
+      G.centralStarCores = fixGrid(G.centralStarCores || [[null,null,null],[null,null,null],[null,null,null]]);
 
       // ★ Firebase 會省略空陣列（[] → undefined），在選牌階段尤其嚴重，必須補回
       const toArr = v => Array.isArray(v) ? v : (v && typeof v === 'object') ? Object.values(v) : [];
