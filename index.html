@@ -675,10 +675,12 @@ async function askPlaceStarCore(cp, dir, idx) {
         if (candidateCells.length > 1) {
           wrap.appendChild(el('p', { style: 'color:#a8b5e0;font-size:12px;margin-bottom:8px' }, '你的被動讓你可以選擇不同位置：'));
           const btnRow = el('div', { style: 'display:flex;flex-direction:column;gap:6px' });
-          candidateCells.forEach(cell => {
-            btnRow.appendChild(el('button', { style: 'padding:8px;cursor:pointer;text-align:left', onclick: () => {
-              closeModal(); doPlace(cell.r, cell.c, cell.cover); resolve();
-            }}, cell.label));
+          candidateCells.forEach((cell, ci) => {
+            btnRow.appendChild(el('button', {
+              class: ci === 0 ? 'btn-primary' : 'btn-character',
+              style: 'width:100%;text-align:left;margin-bottom:4px;',
+              onclick: () => { closeModal(); doPlace(cell.r, cell.c, cell.cover); resolve(); }
+            }, cell.label));
           });
           wrap.appendChild(btnRow);
         }
@@ -790,6 +792,21 @@ function startGame(config) {
 function beginCharacterPick() {
   G.characterPickIdx = 0;
   G.takenChars = new Set();
+  // 隨機分配角色：直接指派，跳過選角流程
+  if (G.config && G.config.randomChar) {
+    const charPool = Object.keys(CHARACTERS);
+    const shuffled = charPool.sort(() => Math.random() - 0.5);
+    G.players.forEach((p, i) => {
+      p.character = shuffled[i % shuffled.length];
+      G.takenChars.add(p.character);
+      const ch = CHARACTERS[p.character];
+      log(`${p.name} 隨機分配到 ${ch.name}（${ENERGY_BY[ch.energy].en}）。`, 'system');
+    });
+    G.characterPickIdx = G.players.length;
+    G.phase = 'setup-pick';
+    beginSetupPick();
+    return;
+  }
   if (!isOnlineMode()) nextCharacterPick();
   // 連線模式：不在此處直接開 modal，由 Firebase listener 的 onlineHandleCharacterPickPhase() 驅動
 }
@@ -820,6 +837,18 @@ function nextCharacterPick() {
       render(); // 顯示等待畫面
       return;
     }
+    const doPickCharacter = (c) => {
+      p.character = c.id;
+      G.takenChars.add(c.id);
+      log(`${p.name} 選擇了 ${c.name}（${ENERGY_BY[c.energy].en}）。`, 'system');
+      closeModal();
+      G.characterPickIdx++;
+      if (isOnlineMode()) {
+        pushState();
+      } else {
+        nextCharacterPick();
+      }
+    };
     openModal({
       title: `${p.name}：選擇你的 Void Walker`,
       body: () => {
@@ -827,18 +856,7 @@ function nextCharacterPick() {
         available.forEach(c => {
           const e = ENERGY_BY[c.energy];
           wrap.appendChild(el('div', { class: 'choice-card', style: `border-left: 4px solid ${e.color};`,
-            onclick: () => {
-              p.character = c.id;
-              G.takenChars.add(c.id);
-              log(`${p.name} 選擇了 ${c.name}（${e.en}）。`, 'system');
-              closeModal();
-              G.characterPickIdx++;
-              if (isOnlineMode()) {
-                pushState(); // 推送後由 Firebase listener 驅動後續玩家選角
-              } else {
-                nextCharacterPick();
-              }
-            }
+            onclick: () => doPickCharacter(c)
           },
             el('div', { class: 'ctitle' }, `${c.name} · ${c.en}`),
             el('div', { class: 'cdesc' },
@@ -851,7 +869,15 @@ function nextCharacterPick() {
         });
         return wrap;
       },
-      actions: []
+      actions: [
+        {
+          label: '🎲 隨機選角',
+          onclick: () => {
+            const pick = available[Math.floor(Math.random() * available.length)];
+            doPickCharacter(pick);
+          }
+        }
+      ]
     });
   }
 }
@@ -1213,11 +1239,9 @@ async function resolveCascades(grid, cp) {
           if (!coreOwner) { scArray[r][c2] = null; return; }
           const isOwnerTurn = (ownerIdx === G.currentPlayer);
           if (isOwnerTurn) {
-            // 自己的回合：星核回庫存，抽 1 張牌
+            // 自己的回合：星核回庫存（不抽牌）
             coreOwner.coreStock = Math.min(5, (coreOwner.coreStock||0) + 1);
-            const drawn = drawN(G, 1);
-            if (drawn.length) { coreOwner.hand.push(drawn[0]); log(`⭐ ${coreOwner.name} 星核消除（自己回合）：回庫存並抽 1 張牌。`, 'system'); }
-            else { log(`⭐ ${coreOwner.name} 星核消除（自己回合）：回庫存。`, 'system'); }
+            log(`⭐ ${coreOwner.name} 星核消除（自己回合）：回庫存。`, 'system');
           } else {
             // 他人回合：星核進面板；面板已滿則回庫存
             if ((coreOwner.corePanel||0) < 2) {
@@ -2069,6 +2093,10 @@ function renderMenu() {
             el('option', { value: 'off' }, '關閉（基礎版）'),
           )
         ),
+        el('label', { style: 'display:flex;align-items:center;gap:8px;' },
+          el('span', {}, '隨機分配角色'),
+          el('input', { type: 'checkbox', id: 'randomCharCb', style: 'width:auto;accent-color:#b48aff;' })
+        ),
         el('div', { class: 'center' },
           el('button', { class: 'start-btn', onclick: () => {
             const mode = $('#modeSel').value;
@@ -2083,7 +2111,8 @@ function renderMenu() {
               players.push({ name: myName, ai: false });
               for (let i = 1; i < count; i++) players.push({ name: `玩家 ${i + 1}`, ai: false });
             }
-            startGame({ mode, players, voidWalker });
+            const randomChar = document.getElementById('randomCharCb')?.checked || false;
+            startGame({ mode, players, voidWalker, randomChar });
           }}, '本地開始'),
           el('br'),
           el('button', { class: 'start-btn', style: 'margin-top:10px;background:linear-gradient(135deg,#2a6a9a,#6a3aaa);', onclick: renderOnlineMenu }, '🌐 連線對戰'),
@@ -2205,15 +2234,25 @@ function showRules() {
         <tr><td>八消</td><td>3×3 外圈（一圈）</td><td>+33</td></tr>
         <tr><td>九消</td><td>3×3 全滿</td><td>+40</td></tr>
       </table>
+      <h3>Void Walker 被動技（自動觸發）</h3>
+      <table>
+        <tr><th>角色</th><th>被動技</th><th>效果</th></tr>
+        <tr><td>卡莉</td><td>餘燼</td><td>推入或消除使對手星核離開星陣時，每顆得 +1 分</td></tr>
+        <tr><td>艾歐</td><td>凍結</td><td>放置星核時，可改放在已有其他玩家星核的格上；艾歐回合開始時移除被覆蓋的對方星核</td></tr>
+        <tr><td>席爾</td><td>虛空汲取</td><td>補牌時可改從個人星陣取 1 張，該格延遲至回合結束後補牌</td></tr>
+        <tr><td>露娜</td><td>光帆</td><td>放置星核時，可改放在推入格左右相鄰格（同行）</td></tr>
+        <tr><td>瑞克</td><td>湮滅</td><td>每輪一次，完成觀測任務時可棄置中央星陣任意 1 張牌</td></tr>
+        <tr><td>塔薇</td><td>疊加態</td><td>回合結束時若中央無你的星核，可放置 1 顆星核至任一星陣</td></tr>
+      </table>
       <h3>Void Walker 主動技（各花費 1 面板星核）</h3>
       <table>
         <tr><th>角色</th><th>主動技</th><th>效果</th></tr>
-        <tr><td>卡莉</td><td>連鎖引爆</td><td>選任意星陣 1 行或 1 列，棄置全部並補牌</td></tr>
+        <tr><td>卡莉</td><td>連鎖引爆</td><td>選任意星陣 1 行或 1 列，棄置全部並補牌（不觸發消除）</td></tr>
         <tr><td>艾歐</td><td>絕對零度</td><td>中央星陣 1 格凍結至下一回合（不移動、不消除）</td></tr>
         <tr><td>席爾</td><td>虛空掠奪</td><td>取走對手個人星陣 1 張棄置，該格延遲補牌</td></tr>
         <tr><td>露娜</td><td>日冕</td><td>移除中央所有你的星核，每顆 +2 分</td></tr>
-        <tr><td>瑞克</td><td>逆位</td><td>插牌前：重置指定個人星陣全部9張，本次消除 ×2</td></tr>
-        <tr><td>塔薇</td><td>量子糾纏</td><td>選帶有你星核的星陣，本回合視為你的星陣</td></tr>
+        <tr><td>瑞克</td><td>逆位</td><td>插牌前：重置指定個人星陣全部 9 張並重新補牌，本回合可對該星陣再插一次牌</td></tr>
+        <tr><td>塔薇</td><td>量子糾纏</td><td>選帶有你星核的星陣，本回合視為你的星陣插卡與消除</td></tr>
       </table>
       <h3>星際能力（依星體形狀）</h3>
       <table>
@@ -2613,11 +2652,14 @@ function renderActions(cp) {
     }, '星塵凝聚'));
   }
 
-  // 艾歐被動：循環預備區
-
-  // 角色主動技能（每回合限用一次，消耗面板星核）
+  // 角色被動提示 + 主動技能
   if (cp.character) {
     const ch = CHARACTERS[cp.character];
+    // 被動提示（只讀，顯示描述）
+    actions.appendChild(el('div', {
+      style: 'font-size:11px;color:#8aa0d8;padding:4px 8px;border:1px solid rgba(150,170,230,0.2);border-radius:6px;margin:4px 0;line-height:1.4;'
+    }, '▸ 被動：' + ch.passiveDesc));
+
     const noCore = (cp.corePanel || 0) < 1;
     const used = cp.characterActiveUsed;
     if (!used) {
