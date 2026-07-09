@@ -326,31 +326,31 @@ const SHAPE_BY = Object.fromEntries(SHAPES.map(s => [s.id, s]));
 
 // V4: 消除形狀模式（3×3 星陣），從大到小排列
 const ELIM_PATTERNS = [
-  { size: 9, score: 66, name: '九消（全滿）',    cells: [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
-  { size: 8, score: 39, name: '八消（一圈）',    cells: [[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
-  { size: 7, score: 24, name: '七消 U（開上）',  cells: [[0,0],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
-  { size: 7, score: 24, name: '七消 U（開下）',  cells: [[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,2]] },
-  { size: 7, score: 24, name: '七消 U（開左）',  cells: [[0,0],[0,1],[0,2],[1,2],[2,0],[2,1],[2,2]] },
-  { size: 7, score: 24, name: '七消 U（開右）',  cells: [[0,0],[0,1],[0,2],[1,0],[2,0],[2,1],[2,2]] },
-  { size: 7, score: 24, name: '七消 H（直）',    cells: [[0,0],[0,2],[1,0],[1,1],[1,2],[2,0],[2,2]] },
-  { size: 7, score: 24, name: '七消 H（橫）',    cells: [[0,0],[0,1],[0,2],[1,1],[2,0],[2,1],[2,2]] },
-  { size: 6, score: 14, name: '六消（上2行）',   cells: [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]] },
-  { size: 6, score: 14, name: '六消（下2行）',   cells: [[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
-  { size: 6, score: 14, name: '六消（左2列）',   cells: [[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] },
-  { size: 6, score: 14, name: '六消（右2列）',   cells: [[0,1],[0,2],[1,1],[1,2],[2,1],[2,2]] },
-  { size: 5, score:  8, name: '五消 T',          cells: [[0,0],[0,1],[0,2],[1,1],[2,1]] },
-  { size: 5, score:  8, name: '五消 T',          cells: [[0,1],[1,1],[2,0],[2,1],[2,2]] },
-  { size: 5, score:  8, name: '五消 T',          cells: [[0,0],[1,0],[1,1],[1,2],[2,0]] },
-  { size: 5, score:  8, name: '五消 T',          cells: [[0,2],[1,0],[1,1],[1,2],[2,2]] },
-  { size: 5, score:  8, name: '五消 +',          cells: [[0,1],[1,0],[1,1],[1,2],[2,1]] },
-  { size: 5, score:  8, name: '五消 L',          cells: [[0,0],[0,1],[0,2],[1,0],[2,0]] },
-  { size: 5, score:  8, name: '五消 L',          cells: [[0,0],[0,1],[0,2],[1,2],[2,2]] },
-  { size: 5, score:  8, name: '五消 L',          cells: [[0,0],[1,0],[2,0],[2,1],[2,2]] },
-  { size: 5, score:  8, name: '五消 L',          cells: [[0,2],[1,2],[2,0],[2,1],[2,2]] },
-  { size: 4, score:  5, name: '四消（左上）',    cells: [[0,0],[0,1],[1,0],[1,1]] },
-  { size: 4, score:  5, name: '四消（右上）',    cells: [[0,1],[0,2],[1,1],[1,2]] },
-  { size: 4, score:  5, name: '四消（左下）',    cells: [[1,0],[1,1],[2,0],[2,1]] },
-  { size: 4, score:  5, name: '四消（右下）',    cells: [[1,1],[1,2],[2,1],[2,2]] },
+  { size: 9, score: 40, name: '九消（全滿）',    cells: [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 8, score: 33, name: '八消（一圈）',    cells: [[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 7, score: 20, name: '七消 U（開上）',  cells: [[0,0],[0,2],[1,0],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 7, score: 20, name: '七消 U（開下）',  cells: [[0,0],[0,1],[0,2],[1,0],[1,2],[2,0],[2,2]] },
+  { size: 7, score: 20, name: '七消 U（開左）',  cells: [[0,0],[0,1],[0,2],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 7, score: 20, name: '七消 U（開右）',  cells: [[0,0],[0,1],[0,2],[1,0],[2,0],[2,1],[2,2]] },
+  { size: 7, score: 20, name: '七消 H（直）',    cells: [[0,0],[0,2],[1,0],[1,1],[1,2],[2,0],[2,2]] },
+  { size: 7, score: 20, name: '七消 H（橫）',    cells: [[0,0],[0,1],[0,2],[1,1],[2,0],[2,1],[2,2]] },
+  { size: 6, score: 16, name: '六消（上2行）',   cells: [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]] },
+  { size: 6, score: 16, name: '六消（下2行）',   cells: [[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 6, score: 16, name: '六消（左2列）',   cells: [[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]] },
+  { size: 6, score: 16, name: '六消（右2列）',   cells: [[0,1],[0,2],[1,1],[1,2],[2,1],[2,2]] },
+  { size: 5, score: 10, name: '五消 T',          cells: [[0,0],[0,1],[0,2],[1,1],[2,1]] },
+  { size: 5, score: 10, name: '五消 T',          cells: [[0,1],[1,1],[2,0],[2,1],[2,2]] },
+  { size: 5, score: 10, name: '五消 T',          cells: [[0,0],[1,0],[1,1],[1,2],[2,0]] },
+  { size: 5, score: 10, name: '五消 T',          cells: [[0,2],[1,0],[1,1],[1,2],[2,2]] },
+  { size: 5, score: 10, name: '五消 +',          cells: [[0,1],[1,0],[1,1],[1,2],[2,1]] },
+  { size: 5, score: 10, name: '五消 L',          cells: [[0,0],[0,1],[0,2],[1,0],[2,0]] },
+  { size: 5, score: 10, name: '五消 L',          cells: [[0,0],[0,1],[0,2],[1,2],[2,2]] },
+  { size: 5, score: 10, name: '五消 L',          cells: [[0,0],[1,0],[2,0],[2,1],[2,2]] },
+  { size: 5, score: 10, name: '五消 L',          cells: [[0,2],[1,2],[2,0],[2,1],[2,2]] },
+  { size: 4, score:  8, name: '四消（左上）',    cells: [[0,0],[0,1],[1,0],[1,1]] },
+  { size: 4, score:  8, name: '四消（右上）',    cells: [[0,1],[0,2],[1,1],[1,2]] },
+  { size: 4, score:  8, name: '四消（左下）',    cells: [[1,0],[1,1],[2,0],[2,1]] },
+  { size: 4, score:  8, name: '四消（右下）',    cells: [[1,1],[1,2],[2,1],[2,2]] },
   { size: 3, score:  3, name: '三消（橫1）',     cells: [[0,0],[0,1],[0,2]] },
   { size: 3, score:  3, name: '三消（橫2）',     cells: [[1,0],[1,1],[1,2]] },
   { size: 3, score:  3, name: '三消（橫3）',     cells: [[2,0],[2,1],[2,2]] },
@@ -1607,102 +1607,7 @@ async function beginSwapHand() {
   if (!G.turn) initTurnState();
   if (G.turn.swapsUsed > 0) return; // 每回合只能棄牌換牌 1 次
   if (cp.hand.length === 0) return;
-  const isRyk = cp.character === 'ryk';
 
-  if (isRyk) {
-    // 瑞克被動：棄 2 張，從預備區與牌庫頂自由分配取 2 張
-    if (cp.hand.length < 2) return;
-    const toDiscard = [];
-    await new Promise(resolve => {
-      const selectStep = () => {
-        openModal({
-          title: `瑞克被動：棄牌換牌（已選 ${toDiscard.length}/2 張棄牌）`,
-          body: () => {
-            const wrap = el('div', { class: 'pick-grid' });
-            cp.hand.forEach((card, i) => {
-              if (toDiscard.includes(i)) return; // 已選
-              const e = ENERGY_BY[card.energy], s = SHAPE_BY[card.shape];
-              const div = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                onclick: () => {
-                  toDiscard.push(i);
-                  closeModal();
-                  if (toDiscard.length < 2) selectStep();
-                  else resolve();
-                }
-              });
-              div.innerHTML = `<div class="icon">${shapeSVG(card.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-              wrap.appendChild(div);
-            });
-            return wrap;
-          },
-          actions: [{ label: '取消', onclick: () => { toDiscard.length = 0; closeModal(); resolve(); } }]
-        });
-      };
-      selectStep();
-    });
-    if (toDiscard.length < 2) return;
-    // 棄牌（從後往前移除避免 index 問題）
-    toDiscard.sort((a, b) => b - a);
-    toDiscard.forEach(i => G.discard.push(cp.hand.splice(i, 1)[0]));
-    // 取 2 張：自由從預備區或牌庫頂選
-    for (let pick = 0; pick < 2; pick++) {
-      await new Promise(resolve => {
-        const opts = [];
-        if (G.reserve && G.reserve.length > 0) opts.push('reserve');
-        if (G.deck && G.deck.length > 0) opts.push('deck');
-        if (opts.length === 0) { resolve(); return; }
-        if (opts.length === 1 && opts[0] === 'deck') {
-          const d = drawN(G, 1); if (d.length) cp.hand.push(d[0]);
-          log(`${cp.name} 從牌庫取 1 張。`); resolve(); return;
-        }
-        openModal({
-          title: `瑞克被動：選取第 ${pick + 1} 張（共 2 張）`,
-          body: () => {
-            const wrap = el('div', { style: 'display:flex;gap:12px;flex-wrap:wrap' });
-            if (G.reserve && G.reserve.length > 0) {
-              const rBtn = el('button', { style: 'flex:1;padding:10px;cursor:pointer', onclick: () => {
-                closeModal();
-                // 讓玩家選預備區
-                openModal({
-                  title: '選擇預備區牌',
-                  body: () => {
-                    const w = el('div', { class: 'pick-grid' });
-                    G.reserve.forEach((c, ri) => {
-                      const e = ENERGY_BY[c.energy], s = SHAPE_BY[c.shape];
-                      const d = el('div', { class: 'hand-card', style: `--cc: ${e.color}; cursor:pointer;`,
-                        onclick: () => { cp.hand.push(G.reserve.splice(ri, 1)[0]); closeModal(); resolve(); }
-                      });
-                      d.innerHTML = `<div class="icon">${shapeSVG(c.shape, e.color, 40)}</div><div class="label">${e.en.toUpperCase()}</div><div class="shape-label">${s.name}</div>`;
-                      w.appendChild(d);
-                    });
-                    return w;
-                  },
-                  actions: []
-                });
-              }});
-              rBtn.textContent = '從預備區取';
-              wrap.appendChild(rBtn);
-            }
-            if (G.deck && G.deck.length > 0) {
-              const dBtn = el('button', { style: 'flex:1;padding:10px;cursor:pointer', onclick: () => {
-                closeModal();
-                const d = drawN(G, 1); if (d.length) cp.hand.push(d[0]);
-                log(`${cp.name} 從牌庫取 1 張。`); resolve();
-              }});
-              dBtn.textContent = '從牌庫頂取';
-              wrap.appendChild(dBtn);
-            }
-            return wrap;
-          },
-          actions: []
-        });
-      });
-    }
-    G.turn.swapsUsed++;
-    refillReserve();
-    render();
-    return;
-  }
 
   // 普通棄牌換牌（含 Siel 可從棄牌堆頂取牌）
   return new Promise(resolve => {
@@ -1804,8 +1709,7 @@ function canDoSwap() {
   if (!G.turn) return true;
   if ((G.turn.swapsUsed || 0) >= 1) return false; // 每回合只能棄牌換牌 1 次
   if (cp.character === 'ryk') {
-    // 瑞克棄 2 換 2：需手牌 ≥ 2 且預備區或牌庫有牌
-    return cp.hand.length >= 2 && ((G.reserve && G.reserve.length > 0) || G.deck.length > 0);
+    return cp.hand.length > 0 && G.reserve && G.reserve.length > 0;
   }
   return cp.hand.length > 0 && G.reserve && G.reserve.length > 0;
 }
@@ -2273,12 +2177,12 @@ function showRules() {
       <table>
         <tr><th>消除</th><th>形狀</th><th>得分</th></tr>
         <tr><td>三消</td><td>整行或整列（3連）</td><td>+3</td></tr>
-        <tr><td>四消</td><td>2×2 正方</td><td>+5</td></tr>
-        <tr><td>五消</td><td>L形 / T形 / +形</td><td>+8</td></tr>
-        <tr><td>六消</td><td>2×3 或 3×2 長方</td><td>+14</td></tr>
-        <tr><td>七消</td><td>U形 / H形</td><td>+24</td></tr>
-        <tr><td>八消</td><td>3×3 外圈（一圈）</td><td>+39</td></tr>
-        <tr><td>九消</td><td>3×3 全滿</td><td>+66</td></tr>
+        <tr><td>四消</td><td>2×2 正方</td><td>+10</td></tr>
+        <tr><td>五消</td><td>L形 / T形 / +形</td><td>+10</td></tr>
+        <tr><td>六消</td><td>2×3 或 3×2 長方</td><td>+16</td></tr>
+        <tr><td>七消</td><td>U形 / H形</td><td>+20</td></tr>
+        <tr><td>八消</td><td>3×3 外圈（一圈）</td><td>+33</td></tr>
+        <tr><td>九消</td><td>3×3 全滿</td><td>+40</td></tr>
       </table>
       <h3>Void Walker 主動技（各花費 1 面板星核）</h3>
       <table>
@@ -2350,10 +2254,16 @@ function renderGame() {
       (() => {
         const btn = el('button', { class: 'mobile-help-btn', title: '說明' }, '📖');
         btn.addEventListener('click', () => {
-          const content = el('div', { style: 'max-height:70vh;overflow-y:auto;' });
-          content.appendChild(renderPlayersPanel());
-          content.appendChild(renderHelpTable());
-          openModal({ title: '說明', bodyEl: content, buttons: [{ label: '關閉', onclick: () => closeModal() }] });
+          openModal({
+            title: '玩家狀態 & 速查',
+            body: () => {
+              const content = el('div', { style: 'max-height:65vh;overflow-y:auto;' });
+              content.appendChild(renderPlayersPanel());
+              content.appendChild(renderHelpTable());
+              return content;
+            },
+            actions: [{ label: '關閉', primary: true, onclick: () => closeModal() }]
+          });
         });
         return btn;
       })()
@@ -2670,7 +2580,7 @@ function renderActions(cp) {
     if (hasSource) {
       actions.appendChild(el('button', {
         onclick: () => beginSwapHand().then(() => render())
-      }, cp.character === 'ryk' ? '棄 2 換 2' : '棄牌換牌'));
+      }, '棄牌換牌'));
     }
   }
 
@@ -2717,12 +2627,12 @@ function renderHelpTable() {
 
   const rows = [
     ['三消（直/橫線）', '+3'],
-    ['四消（2×2）', '+5'],
-    ['五消（L/T形）', '+8'],
-    ['六消（長方）', '+14'],
-    ['七消（U形/H形）', '+24'],
-    ['八消（外圈）', '+39'],
-    ['九消（全滿）', '+66'],
+    ['四消（2×2）', '+8'],
+    ['五消（L/T形）', '+10'],
+    ['六消（長方）', '+16'],
+    ['七消（U形/H形）', '+20'],
+    ['八消（外圈）', '+33'],
+    ['九消（全滿）', '+40'],
     ['完成任務', '+6'],
     ['消除帶星核（返還）', ''],
     ['露娜日冕移除（每顆）', '+2'],
